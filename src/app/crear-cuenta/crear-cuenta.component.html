@@ -1,0 +1,54 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body>
+    <div class="barra-superior">    
+        <div class="logo-app"></div>
+        <!-- falta poner secciones de socios -->
+        <div class="foto-app"></div>
+        <button class="logout"[routerLink]="['']" routerLinkActive="active"></button>
+    </div>
+    <div class="cuerpo">
+        <div class="create_account">
+            <p class="title">Crear cuenta</p>
+            <form #f="ngForm" (ngSubmit)="crearCuenta(f)">
+                <div class="input_container">
+                    <img src="user.png" class="input_icon" alt="logo">
+                    <input id="username" class="usuario_input" placeholder="Usuario" ngModel name="username" required />
+                </div>
+                <p *ngIf="errorUsuario" class="error-message">{{ errorUsuario }}</p>
+
+                <div class="input_container">
+                    <img src="member.png" class="input_icon" alt="logo">
+                    <input id="username" class="member_input" placeholder="Número de socio" ngModel name="member" required />
+                </div>
+                <p *ngIf="errorSocio" class="error-message">{{ errorSocio }}</p>               
+
+                <div class="input_container">
+                    <img src="email.png" class="input_icon" alt="logo">
+                    <input id="email" class="email_input" type="email" placeholder="Correo Electrónico" ngModel name="email" required />
+                </div>
+                <div class="input_container">
+                    <img src="password.png" class="input_icon" alt="logo">
+                    <input id="password" type="password" class="usuario_input" placeholder="Contraseña" ngModel name="password" required />
+                </div>
+
+                <div class="input_container">
+                    <img src="password.png" class="input_icon" alt="logo">
+                    <input id="confirm_password" type="password" class="confirm_password_input" placeholder="Confrimar contraseña" ngModel name="confirm_password" required />
+                </div>
+
+                <p *ngIf="errorPassword" class="error-message">{{ errorPassword }}</p>
+
+                <p *ngIf="errorCampos" class="error-message">{{ errorCampos }}</p>
+
+                <p *ngIf="mensajeExito" class="success-message">{{ mensajeExito }}</p>
+
+                <button class="confirmation_button" type="submit">Crear cuenta</button>
+            </form>
+            <div class="login-text">
+                <p class="account_text">{{inicar_sesion}} <a class="register_text" [routerLink]="['/login']" routerLinkActive="active">Inicar Sesión</a></p>
+            </div>
+        </div>
+    </div>
+</body>

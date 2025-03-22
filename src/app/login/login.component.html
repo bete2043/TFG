@@ -1,0 +1,33 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body>
+    <div class="barra-superior">    
+        <div class="logo-app"></div>
+        <!-- falta poner secciones de socios -->
+        <div class="foto-app"></div>
+        <button class="logout"[routerLink]="['']" routerLinkActive="active"></button>
+    </div>
+    <div class="cuerpo">
+        <div class="login-cuerpo">
+            <p class="title">Inicio Sesión</p>
+            <form #f="ngForm" (ngSubmit)="login(f)">
+                <div class="input_container">
+                    <img src="user.png" class="input_icon" alt="logo">
+                    <input id="username" class="usuario_input" placeholder="Usuario" ngModel name="username" required />
+                </div>
+                <div class="input_container">
+                    <img src="password.png" class="input_icon" alt="logo">
+                    <input id="password" class="password_input" type="password" placeholder="Contraseña" ngModel name="password" required />
+                </div>
+
+                <p *ngIf="error" class="error-message">{{error}}</p>
+
+                <button type="submit" class="confirmation_button">Iniciar Sesión</button>
+            </form>
+            <div class="create_account">
+                <p class="account_text">{{crear_cuenta}} <a class="register_text" [routerLink]="['/crear_cuenta']" routerLinkActive="active">Regístrate</a></p>
+            </div>
+        </div>          
+    </div>
+</body>

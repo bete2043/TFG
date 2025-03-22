@@ -1,0 +1,134 @@
+.cuerpo{
+    width: 100%;
+    margin: auto;
+    flex: 1;
+    box-sizing: border-box;
+    height: 100vh; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 14vh;
+    /* Colocación de la imagen de login */
+    background-image: url('/olivares.webp'), url('/olivares2.webp') ;
+    background-size: cover; 
+    background-size: cover;
+    background-position: left center, right center;
+    background-repeat: no-repeat, no-repeat;
+
+}
+.create_account{
+    width: 40%;
+    padding: 1.5rem;
+    margin-top: 10vh;
+    background-color: #A4B465;
+    border-radius: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;    
+}
+input {
+    width: 90%;
+    height: 2.7rem;
+    border-radius: 1.25rem;
+    padding-left: 1rem;
+    outline: none;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    padding-left: 3rem;
+}
+.title{
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    font-size: 2.4rem;
+    font-weight: bold;
+    color: rgb(0, 0, 0);
+    margin-top: auto;
+}
+.input_container {
+    position: relative;
+    margin: auto;
+    display: flex;
+    align-items: center;
+}
+.input_icon {
+    position: absolute;
+    left: 2em;
+    top: 3rem; 
+    width: 1.5em;
+    height: 1.5em;
+}
+input {
+    margin-left: 1rem;
+    margin-top: 2.5rem;
+    width: 90%;
+    height: 3rem;
+    border-radius: 1.25rem;
+    padding-left: 1rem;
+    outline: none;
+    border: 1px solid #ccc;
+    font-size: 1.3rem;
+    padding-left: 3rem;
+}
+.login-text {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+    width: 90%;
+    margin: auto;
+    margin-top: auto;
+}
+.account_text {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: rgb(0, 0, 0);
+    margin-right: 10px; 
+}
+.register_text {
+    color: rgb(35, 40, 112); 
+    font-weight: bold;
+    text-decoration: none; 
+    margin-left: 5px;
+    cursor: pointer;
+    font-size: 1.3rem;
+    margin: auto;
+}
+.register_text:hover {
+    text-decoration: underline; 
+}
+.error-message {
+    color: red;
+    font-size: 1.2rem;
+    margin: auto;
+    margin-top: 1rem;
+    text-align: center;
+    font-style: bold;
+}
+.success-message {
+    color: green;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+    text-align: center;
+    font-weight: bold;
+}
+.confirmation_button {
+    background-color: #FFCF50;
+    width: 40%;
+    height: 2.5rem;
+    border-radius: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+    font-size: 1.4rem;
+    cursor: pointer;
+    border: none;
+    margin:auto;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+.confirmation_button:hover{
+    transform: scale(1.05);
+}
+

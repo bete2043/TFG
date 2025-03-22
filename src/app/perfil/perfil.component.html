@@ -1,0 +1,54 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body>
+    <div class="barra-superior">    
+        <div class="logo-app"></div>
+       
+        <div class="menu1" *ngIf="usuarioAutenticado">
+            <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+            <a routerLink="/mapa" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mapa</a>
+            <a routerLink="/riego" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Riego</a>
+            <a routerLink="/fitosanitario" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Fitosanitarios</a>
+        </div>
+          
+        <div class="foto-app"></div>
+          
+        <div class="menu2" *ngIf="usuarioAutenticado">
+            <a routerLink="/poda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Poda</a>
+            <a routerLink="/abonado" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Abonado</a>
+            <a routerLink="/plagas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Plagas</a>
+            <a routerLink="/recoleccion" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Recolección</a>
+        </div>
+    
+        <!-- Mostrar nombre y botón de cerrar sesión si el usuario ha iniciado sesión -->
+        <div class="usuario-info" *ngIf="usuarioAutenticado; else loginSection">
+            <div class="usuario-avatar">
+                <span class="inicial" *ngIf="usuarioAutenticado">{{ getInicial() }}</span>
+            </div>
+            <div class="usuario-detalle">
+                <span class="usuario-tipo">Personal</span>
+                <span class="nombre-usuario">{{ usuarioAutenticado }}</span>
+            </div>
+            
+            <!-- Botón de menú desplegable -->
+            <div class="dropdown">
+                <button class="dropdown-toggle" (click)="toggleMenu($event)"></button>
+    
+                <!-- Menú desplegable -->
+                <ul class="dropdown-menu" *ngIf="menuAbierto">
+                    <li (click)="perfil()">Perfil</li>
+                    <li (click)="cerrarSesion()">Cerrar sesión</li>
+                </ul>
+            </div>
+        </div>
+    
+        <!-- Botón de login si no hay usuario autenticado -->
+        <ng-template #loginSection>
+            <button class="login" (click)="iniciarSesion()"></button>
+        </ng-template>
+    </div>
+    <div class="cuerpo">
+        hola
+    </div>
+</body>

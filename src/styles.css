@@ -1,0 +1,351 @@
+*{
+    /* Fuente de la letra en toda la página */
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 1rem;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+html, body {
+    height: auto; /* Permitir que el contenido defina la altura */
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+} 
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transform-origin: center center;
+}
+body.zoom {
+    transform: scale(1);
+    transition: transform 0.3s ease-in-out;
+}
+.barra-superior{
+    /*Alinear elementos en la barra*/
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    padding: 1rem 2vw;
+    font-size: 1.2vw;
+    /* Tamaño de la barra y color de fondo*/
+    width: 100%;
+    height: 16vh;
+    background-color: #626F47;    
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    border-bottom: 2px solid #FFCF50;
+}
+.menu1, .menu2 {
+    display: flex;
+    flex-direction: row; 
+    justify-content: flex-start;
+    align-items: flex-end; 
+    gap:1.5rem;
+    height: 100%; 
+}
+.menu1 a, .menu2 a {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;    
+    color: #ffffff;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1.5vw;
+    font-weight: bold; 
+}
+.menu1 a.active, .menu2 a.active {
+    font-weight: bold;color: #FFCF50;
+}
+.menu1 a::before, .menu2 a::before {
+    content: "🔹";
+    font-size: 1.2rem;
+}
+.menu1 a:hover, .menu2 a:hover {
+    color: #FEFAE0;
+    transform: scale(1.1);
+}
+.usuario-info {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background-color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.usuario-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #e97421; /* Color del círculo */
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.usuario-detalle {
+    display: flex;
+    flex-direction: column;
+}
+
+.usuario-tipo {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.nombre-usuario {
+    font-size: 1rem;
+    color: #141414;
+}
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgb(80, 25, 25);
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    list-style: none;
+    min-width: 150px;
+    display: flex !important;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.dropdown-menu li {
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.dropdown-menu li:hover {
+    background: #f1f1f1;
+}
+.logout {
+    width: 40px; 
+    height: 40px;
+    background-image: url('/logout.png'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.3s ease-in-out;
+}
+.logout:hover{
+    transform: scale(1.1);
+}
+.logo-app, .foto-app, .login {
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.logo-app{
+    /*Tamaño del logo*/
+    width: 12vw;
+    height: 12vw;
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 50%;
+    /* Colocación de la imagen del logo */
+    background-image: url('/logo.png');
+    background-size: 110%;
+}
+.foto-app{
+    /*Tamaño de la foto de la app*/
+    height: 17vh;
+    width: 22vh;
+    margin-top: 11vh;
+    border-radius:10%;
+    /* Colocación de la imagen de la foto de la app */
+    background-image: url('/foto-app.png');
+    background-size: 110%;
+}
+.login{
+    /* Tamaño del botón de login*/
+    height: 3vw;
+    width: 3vw;
+    margin-right: 1rem;
+    max-height: 50px;
+    max-width: 50px;
+    /* Colocación de la imagen de login */
+    background-image: url('/login.png');
+    /* Colocación del botón*/
+    margin-bottom: 1.5vh;
+    margin-top: auto;
+    /* Customización del botón */
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+.login:hover{
+    transform: scale(1.1);
+}
+.cuerpo{
+    width: 100%;
+    margin: auto;
+    flex: 1;
+    box-sizing: border-box;
+    min-height: 100vh; 
+    background-image: url('/textura.jpeg');
+    background-size: cover; 
+    background-position:center;
+    background-repeat: no-repeat;
+    margin-top: 5%;
+    padding-top: 14vh;
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+}
+.pie{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    margin: auto;
+    flex-wrap: wrap;
+    background-color: #352d27;
+    color: white;
+    padding: 2vh 3vw;
+    font-size: 1.3vw;
+}
+.texto-pie{
+    /* Tamaño del cuadro de texto */
+    height: 20vh;
+    width: 40vh;
+    margin-left: 2vw;
+    /* Colocar el texto en el centro */
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: start; 
+}
+.nombre-cooperativa, .info-politica{
+    /* Color y tamaño de la letra */
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 2vw;
+}
+.direccion-cooperativa, .horario-cooperativa, .cookies, .terminos{
+    /* Color y tamaño de la letra */
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 1.1vw;
+    margin-top: 1rem;
+}
+.foto-pie{
+    /* Tamaño de la foto del pie de página */
+    height: 30vh;
+    width: 55vh;
+    max-width: 100%;
+    /* Colocación de la imagen*/
+    background-image: url('/jaencoop-logo.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.info-pie{
+    /* Tamaño del cuadro de texto */
+    height: 20vh;
+    width: 23vh;
+    margin-right: 6vh;
+    /* Colocación del texto en el centro*/
+    text-align: center;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: start; 
+}
+@media (max-width: 900px) {
+    .barra-superior {
+        height: auto; /* Se ajusta según el contenido */
+        padding: 1vh 2vw;
+        text-align: center;
+        position: relative; /* No fija toda la pantalla */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .logo-app, .foto-app, .imagen1, .imagen2 {
+        display: none;
+    }
+    .menus {
+        display: flex;
+        flex-direction: column; /* Apila menu1 encima de menu2 */
+        align-items: center;
+        width: 100%;
+        gap: 0.5vh;
+    }
+
+    .menu1, .menu2 {
+        display: flex;
+        flex-direction: row; /* Mantiene los elementos en fila */
+        justify-content: center;
+        width: 100%;
+        gap: 1.5vw; /* Espaciado */
+    }
+
+    .menu1 a, .menu2 a {
+        font-size: 2vw;
+    }
+
+    .usuario-info {
+        position: absolute;
+        top: 50%;
+        right: 2vw;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 1vh;
+    }
+
+    .nombre-usuario {
+        font-size: 2vw;
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+    .logout {
+        height: 4vw;
+        width: 4vw;
+        background-size: contain;
+    }
+}
+
+
+
+
+ 
