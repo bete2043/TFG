@@ -75,7 +75,7 @@ body.zoom {
 .usuario-info {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    gap: 0.rem;
     background-color: white;
     padding: 0.5rem 1rem;
     border-radius: 10px;
@@ -303,7 +303,7 @@ body.zoom {
     }
     .menus {
         display: flex;
-        flex-direction: column; /* Apila menu1 encima de menu2 */
+        flex-direction: column; 
         align-items: center;
         width: 100%;
         gap: 0.5vh;

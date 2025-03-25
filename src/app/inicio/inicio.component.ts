@@ -25,7 +25,6 @@ export class InicioComponent {
       this.currentRoute = event.urlAfterRedirects;
       const rutaActual = this.router.url;
       
-      // Forzar la detección de cambios
       this.cdRef.detectChanges();
     });
   }

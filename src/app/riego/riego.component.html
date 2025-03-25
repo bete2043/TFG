@@ -8,18 +8,18 @@
        
         <div class="menu1" *ngIf="usuarioAutenticado">
             <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
-            <a routerLink="/mapa" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mapa</a>
             <a routerLink="/riego" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Riego</a>
+            <a routerLink="/abonado" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Abonado</a>
             <a routerLink="/fitosanitario" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Fitosanitarios</a>
         </div>
           
         <div class="foto-app"></div>
           
         <div class="menu2" *ngIf="usuarioAutenticado">
-            <a routerLink="/poda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Poda</a>
-            <a routerLink="/abonado" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Abonado</a>
-            <a routerLink="/plagas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Plagas</a>
             <a routerLink="/recoleccion" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Recolección</a>
+            <a routerLink="/mapa" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mapa</a>
+            <a routerLink="/poda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Poda</a>
+            <a routerLink="/plagas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Plagas</a>
         </div>
     
         <!-- Mostrar nombre y botón de cerrar sesión si el usuario ha iniciado sesión -->
@@ -51,8 +51,86 @@
     </div>
     
     <div class="cuerpo">
-        Hola
+        <button (click)="anterior()" class="boton-navegacion">Anterior</button>
+    
+        <div class="contenedor-carrusel">
+            <div class="fichas" [style.transform]="'rotateY(' + (-indiceActual * (360 / info.length)) + 'deg)'">
+                <div class="ficha" *ngFor="let riego of info; let i = index"
+                     [style.transform]="'rotateY(' + (i * (360 / info.length)) + 'deg) translateZ(40rem)'">
+                    <div class="nombre">{{ riego.nombre }}</div>
+                    <div class="info">
+                        <div class="pares">
+                            <div class="casillas">Superficie:</div>
+                            <div class="bd">{{ riego.superficie }} hectáreas</div>
+                        </div>
+                        <div class="pares">
+                            <div class="casillas">Último riego:</div>
+                            <div class="bd">{{ riego.ultimo_riego }}</div>
+                        </div>
+                        <div class="pares">
+                            <div class="casillas">Estado del riego:</div>
+                            <div class="bd">{{ riego.riego }}</div>
+                        </div>
+                    </div>
+                    <button class="boton" (click)="abrirModal(riego)" >Obtener Info</button>
+                </div>
+            </div>
+        </div>
+    
+        <button (click)="siguiente()" class="boton-navegacion">Siguiente</button>
     </div>
+    
+    <!-- Modal -->
+    <div class="modal" *ngIf="modalAbierto">
+        <div class="modal-contenido">
+            <div class="modal-header">
+                <h2>Detalles del Riego {{this.riegoSeleccionado.nombre}}</h2>
+                <button class="cerrar-modal" (click)="cerrarModal()">✖</button>
+            </div>
+            <form (ngSubmit)="enviarDatos(f)" #f="ngForm">
+                <div class="modal-body">
+                    <div class="metodo">
+                        <p><strong>Método de riego:</strong></p>
+                        <select [(ngModel)]="metodoRiego" name="metodoRiego" required class="menu-metodo">
+                            <option value="" disabled selected hidden>Elige una opción</option>
+                            <option value="lluvia">Lluvia</option>
+                            <option value="aspersor">Aspersor</option>
+                            <option value="goteo">Goteo</option>
+                        </select>
+                    </div>
+            
+                    <div class="cantidad">
+                        <p><strong>Cantidad: </strong></p>
+                        <input id="cantidad" [(ngModel)]="cantidad" type="number" name="cantidad" placeholder="Introduce la cantidad en litros" required />
+                    </div>
+            
+                    <div class="fecha">
+                        <p><strong>Fecha: </strong></p>
+                        <input type="date" [(ngModel)]="fechaSeleccionada" name="fechaSeleccionada"
+                               max="{{ fechaActual }}" class="input-fecha" required />
+                    </div>
+                </div>
+            
+                <button type="submit" [disabled]="!f.valid" class="btn-enviar">Enviar</button>
+            </form>
+
+            <button (click)="verHistorial(this.riegoSeleccionado.nombre)">Ver Historial</button>
+
+            <div *ngIf="historialVisible.length > 0">
+                <h5>Historial de Riego</h5>
+                <ul>
+                  <li *ngFor="let h of historialVisible">
+                    <div><strong>Fecha:</strong> {{ h.fecha }}</div>
+                    <div><strong>Método:</strong> {{ h.metodo }}</div>
+                    <div><strong>Cantidad:</strong> {{ h.cantidad }} litros</div>
+                  </li>
+                </ul>
+                <button (click)="ocultarHistorial()">Cerrar Historial</button>
+            </div>
+              
+        </div>
+    </div>
+  
 
     <div class="pie">
         <div class="texto-pie">

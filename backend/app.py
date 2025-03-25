@@ -13,7 +13,8 @@ mongo = PyMongo(app)
 
 # Colecciones
 users = mongo.db.usuarios
-ads= mongo.db.anuncios
+ads = mongo.db.anuncios
+riego = mongo.db.riego 
 
 # Ruta para registrar un usuario
 @app.route('/crear_cuenta', methods=['POST'])
@@ -77,12 +78,60 @@ def obtener_noticias():
             "descripcion": i["descripcion"],
             "foto": i["foto"]
         })
-    for i in info:
-        print("Datos id:", i["_id"])
-        print("Datos descripcion:", i["descripcion"])
-        print("Datos foto:", i["foto"])
 
     return jsonify(resultado)
+ # Fincas de cada usuario
+@app.route('/riego' , methods=['GET'])
+def obtener_fincas():
+    finca = riego.find()
+    fincas = []
+    for i in finca:
+        fincas.append({
+            "id": str(i["_id"]),
+            "nombre": i["nombre"],
+            "superficie": i["superficie"],
+            "ultimo_riego": i["ultimo_riego"],
+            "riego": i["riego"]
+        })
+
+    return jsonify(fincas)
+
+# Guardar los datos del riego
+@app.route('/riego' , methods=['POST'])
+def datos_riego():
+    data = request.json
+    metodoRiego = data.get('metodoRiego')
+    cantidad = data.get('cantidad')
+    fecha = data.get('fecha')
+    riegoSeleccionado = data.get('riegoSeleccionado')
+
+    resultado = riego.update_one(
+        {'nombre': riegoSeleccionado},  
+        {'$push': {                      
+            'historial': {
+                'fecha': fecha,
+                'metodo': metodoRiego,
+                'cantidad': cantidad
+            }
+        }}
+    )
+
+    if resultado.modified_count > 0:
+        return jsonify({'message': 'Datos añadidos correctamente'}), 200
+    else:
+        return jsonify({'message': 'Error: No se encontró el riego seleccionado'}), 404
+
+#Obtener el historial
+@app.route('/riego/<nombre_finca>' , methods=['GET'])
+def historial_finca(nombre_finca):
+    finca = riego.find_one({"nombre": nombre_finca})
+
+    if not finca:
+        return jsonify({"error": "Finca no encontrada"}), 404
+
+    historial = finca.get("historial", [])
+
+    return jsonify(historial)
 
 
 if __name__ == '__main__':

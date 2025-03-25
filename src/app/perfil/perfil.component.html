@@ -7,18 +7,18 @@
        
         <div class="menu1" *ngIf="usuarioAutenticado">
             <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
-            <a routerLink="/mapa" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mapa</a>
             <a routerLink="/riego" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Riego</a>
+            <a routerLink="/abonado" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Abonado</a>
             <a routerLink="/fitosanitario" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Fitosanitarios</a>
         </div>
           
         <div class="foto-app"></div>
           
         <div class="menu2" *ngIf="usuarioAutenticado">
-            <a routerLink="/poda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Poda</a>
-            <a routerLink="/abonado" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Abonado</a>
-            <a routerLink="/plagas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Plagas</a>
             <a routerLink="/recoleccion" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Recolección</a>
+            <a routerLink="/mapa" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mapa</a>
+            <a routerLink="/poda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Poda</a>
+            <a routerLink="/plagas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Plagas</a>
         </div>
     
         <!-- Mostrar nombre y botón de cerrar sesión si el usuario ha iniciado sesión -->
