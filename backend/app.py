@@ -15,6 +15,7 @@ mongo = PyMongo(app)
 users = mongo.db.usuarios
 ads = mongo.db.anuncios
 riego = mongo.db.riego 
+abonado = mongo.db.abonado
 
 # Ruta para registrar un usuario
 @app.route('/crear_cuenta', methods=['POST'])
@@ -80,7 +81,8 @@ def obtener_noticias():
         })
 
     return jsonify(resultado)
- # Fincas de cada usuario
+""" RIEGO """
+# Fincas de cada usuario
 @app.route('/riego' , methods=['GET'])
 def obtener_fincas():
     finca = riego.find()
@@ -91,7 +93,8 @@ def obtener_fincas():
             "nombre": i["nombre"],
             "superficie": i["superficie"],
             "ultimo_riego": i["ultimo_riego"],
-            "riego": i["riego"]
+            "riego": i["riego"],
+            "propietario": i["propietario"]
         })
 
     return jsonify(fincas)
@@ -132,7 +135,6 @@ def historial_finca(nombre_finca):
     historial = finca.get("historial", [])
 
     return jsonify(historial)
-
 
 if __name__ == '__main__':
     app.run(debug=True)

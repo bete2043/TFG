@@ -5,31 +5,24 @@
 <body>
     <div class="barra-superior">    
         <div class="logo-app"></div>
-       
         <div class="menu1" *ngIf="usuarioAutenticado">
             <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
             <a routerLink="/riego" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Riego</a>
             <a routerLink="/abonado" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Abonado</a>
             <a routerLink="/fitosanitario" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Fitosanitarios</a>
         </div>
-          
         <div class="foto-app"></div>
-          
         <div class="menu2" *ngIf="usuarioAutenticado">
             <a routerLink="/recoleccion" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Recolección</a>
             <a routerLink="/mapa" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mapa</a>
             <a routerLink="/poda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Poda</a>
             <a routerLink="/plagas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Plagas</a>
         </div>
-    
+
         <!-- Mostrar nombre y botón de cerrar sesión si el usuario ha iniciado sesión -->
         <div class="usuario-info" *ngIf="usuarioAutenticado; else loginSection">
             <div class="usuario-avatar">
                 <span class="inicial" *ngIf="usuarioAutenticado">{{ getInicial() }}</span>
-            </div>
-            <div class="usuario-detalle">
-                <span class="usuario-tipo">Personal</span>
-                <span class="nombre-usuario">{{ usuarioAutenticado }}</span>
             </div>
             
             <!-- Botón de menú desplegable -->
@@ -64,15 +57,15 @@
                             <div class="bd">{{ riego.superficie }} hectáreas</div>
                         </div>
                         <div class="pares">
+                            <div class="casillas">Numero de olivas:</div>
+                            <div class="bd">{{ riego.riego }}</div>
+                        </div>
+                        <div class="pares">
                             <div class="casillas">Último riego:</div>
                             <div class="bd">{{ riego.ultimo_riego }}</div>
                         </div>
-                        <div class="pares">
-                            <div class="casillas">Estado del riego:</div>
-                            <div class="bd">{{ riego.riego }}</div>
-                        </div>
                     </div>
-                    <button class="boton" (click)="abrirModal(riego)" >Obtener Info</button>
+                    <button class="boton" (click)="abrirModalYVerHistorial(riego)" >Obtener Info</button>
                 </div>
             </div>
         </div>
@@ -84,8 +77,8 @@
     <div class="modal" *ngIf="modalAbierto">
         <div class="modal-contenido">
             <div class="modal-header">
-                <h2>Detalles del Riego {{this.riegoSeleccionado.nombre}}</h2>
-                <button class="cerrar-modal" (click)="cerrarModal()">✖</button>
+                <h2>Detalles del Riego de {{this.riegoSeleccionado.nombre}}</h2>
+                <button class="cerrar-modal" (click)="cerrarModalyHisotrial()">✖</button>
             </div>
             <form (ngSubmit)="enviarDatos(f)" #f="ngForm">
                 <div class="modal-body">
@@ -107,30 +100,64 @@
                     <div class="fecha">
                         <p><strong>Fecha: </strong></p>
                         <input type="date" [(ngModel)]="fechaSeleccionada" name="fechaSeleccionada"
-                               max="{{ fechaActual }}" class="input-fecha" required />
+                                max="{{ fechaActual }}" class="input-fecha" required />
                     </div>
                 </div>
             
                 <button type="submit" [disabled]="!f.valid" class="btn-enviar">Enviar</button>
             </form>
-
-            <button (click)="verHistorial(this.riegoSeleccionado.nombre)">Ver Historial</button>
-
-            <div *ngIf="historialVisible.length > 0">
-                <h5>Historial de Riego</h5>
-                <ul>
-                  <li *ngFor="let h of historialVisible">
-                    <div><strong>Fecha:</strong> {{ h.fecha }}</div>
-                    <div><strong>Método:</strong> {{ h.metodo }}</div>
-                    <div><strong>Cantidad:</strong> {{ h.cantidad }} litros</div>
-                  </li>
-                </ul>
-                <button (click)="ocultarHistorial()">Cerrar Historial</button>
-            </div>
-              
+            
+            <div class="historial-modal" *ngIf="historialVisible.length > 0">
+                <h3>Historial de Riego</h3>
+            
+                <div class="menu-anios">
+                    <label for="seleccionar-anio">Seleccionar Año:</label>
+                    <select id="seleccionar-anio" [(ngModel)]="anioSeleccionado" (change)="cargarHistorialAnio()">
+                        <option value="" disabled selected>Elige un año</option>
+                        <option *ngFor="let anio of historialAnios" [value]="anio">{{ anio }}</option>
+                    </select>
+                </div>
+            
+                <div *ngIf="anioSeleccionado && historialPorAnio[anioSeleccionado]" class="historial-container">
+                    <div class="content">
+                        <div class="tabla">
+                            <h4>Historial del Año {{ anioSeleccionado }}</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Método</th>
+                                        <th>Cantidad (L)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let riego of historialPorAnio[anioSeleccionado]">
+                                        <td>{{ formatearFecha(riego.fecha) }}</td>
+                                        <td>{{ riego.metodo }}</td>
+                                        <td>{{ riego.cantidad }} L</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                
+                        <!-- Resumen del año seleccionado -->
+                        <div *ngIf="resumenHistorialExpandido[anioSeleccionado]" class="resumen">
+                            <h4>Resumen del Año {{ anioSeleccionado }}</h4>
+                            <ul>
+                                <li><strong>Días con lluvia:</strong> {{ resumenHistorialExpandido[anioSeleccionado].diasLluvia }}</li>
+                                <li><strong>Días con riego:</strong> {{ resumenHistorialExpandido[anioSeleccionado].diasRiego }}</li>
+                                <li><strong>Litros de lluvia:</strong> {{ resumenHistorialExpandido[anioSeleccionado].litrosLluvia }} L</li>
+                                <li><strong>Litros de riego:</strong> {{ resumenHistorialExpandido[anioSeleccionado].litrosRiego }} L</li>
+                                <li><strong>Litros totales:</strong> {{ resumenHistorialExpandido[anioSeleccionado].litrosTotales }} L</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button *ngIf="anioSeleccionado" class="btn-hst" (click)="ocultarHistorial()">Ocultar Historial</button>
+                </div>
+            </div>            
         </div>
     </div>
-  
+
 
     <div class="pie">
         <div class="texto-pie">

@@ -75,7 +75,7 @@ body.zoom {
 .usuario-info {
     display: flex;
     align-items: center;
-    gap: 0.rem;
+    gap: 0.6rem;
     background-color: white;
     padding: 0.5rem 1rem;
     border-radius: 10px;
@@ -100,11 +100,6 @@ body.zoom {
 .usuario-detalle {
     display: flex;
     flex-direction: column;
-}
-
-.usuario-tipo {
-    font-weight: bold;
-    font-size: 0.9rem;
 }
 
 .nombre-usuario {
@@ -344,8 +339,3 @@ body.zoom {
         background-size: contain;
     }
 }
-
-
-
-
- 

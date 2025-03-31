@@ -4,16 +4,16 @@
 <body>
     <div class="barra-superior">    
         <div class="logo-app"></div>
-       
+    
         <div class="menu1" *ngIf="usuarioAutenticado">
             <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
             <a routerLink="/riego" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Riego</a>
             <a routerLink="/abonado" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Abonado</a>
             <a routerLink="/fitosanitario" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Fitosanitarios</a>
         </div>
-          
+        
         <div class="foto-app"></div>
-          
+        
         <div class="menu2" *ngIf="usuarioAutenticado">
             <a routerLink="/recoleccion" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Recolección</a>
             <a routerLink="/mapa" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mapa</a>
@@ -25,10 +25,6 @@
         <div class="usuario-info" *ngIf="usuarioAutenticado; else loginSection">
             <div class="usuario-avatar">
                 <span class="inicial" *ngIf="usuarioAutenticado">{{ getInicial() }}</span>
-            </div>
-            <div class="usuario-detalle">
-                <span class="usuario-tipo">Personal</span>
-                <span class="nombre-usuario">{{ usuarioAutenticado }}</span>
             </div>
             
             <!-- Botón de menú desplegable -->
