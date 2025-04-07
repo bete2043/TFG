@@ -21,8 +21,7 @@ export class PodaComponent {
     indiceActual: number = 0;
     modalAbierto: boolean = false; 
     riegoSeleccionado: any = null;
-    tipoaceituna: string = '';
-    cantidad: number | null = null;
+    tipopoda: string = '';
     olivas: number | null = null;
     fechaSeleccionada: string | null = null;  
     fechaActual: string = '';  
@@ -58,7 +57,7 @@ export class PodaComponent {
         (response) => {
           this.info = response;
           this.info.forEach((finca, index) => {
-            this.obtenerUltimoCura(finca.nombre, index);
+            this.obtenerUltimoPoda(finca.nombre, index);
           });
           this.agruparPorAnio();
           this.extraerAnios();
@@ -110,15 +109,15 @@ export class PodaComponent {
         console.log('Año seleccionado:', this.anioSeleccionado); 
       }
     }   
-    obtenerUltimoCura(nombreFinca: string, index: number): void {
-      this.http.get<any[]>(`http://localhost:5000/recoleccion/${nombreFinca}`).subscribe(
+    obtenerUltimoPoda(nombreFinca: string, index: number): void {
+      this.http.get<any[]>(`http://localhost:5000/poda/${nombreFinca}`).subscribe(
         (historial) => {
           if (this.info && this.info[index]) { 
             if (historial.length > 0) {
               historial.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-              this.info[index].ultima_recoleccion = this.formatearFecha(historial[0].fecha);
+              this.info[index].ultima_poda = this.formatearFecha(historial[0].fecha);
             } else {
-              this.info[index].ultima_recoleccion = 'No hay registros';
+              this.info[index].ultima_poda = 'No hay registros';
             }
           }
         },
@@ -147,7 +146,7 @@ export class PodaComponent {
         return;
       }
 
-      this.http.get<any[]>(`http://localhost:5000/recoleccion/${nombreFinca}`).subscribe(
+      this.http.get<any[]>(`http://localhost:5000/poda/${nombreFinca}`).subscribe(
         (response) => {
           this.historialVisible = response.sort((a, b) => {
             const fechaA = new Date(a.fecha).getTime();
@@ -183,38 +182,24 @@ export class PodaComponent {
     // Calcular resumen solo si aún no ha sido generado
       const datos = this.historialPorAnio[anio];
 
-      const picual = datos
-        .filter((r) => r.metodo === 'picual')
+      const formacion = datos
+        .filter((r) => r.metodo === 'formacion')
         .reduce((sum, r) => sum + r.olivas, 0);
 
-        const arbequina = datos
-        .filter((r) => r.metodo === 'arbequina')
+        const produccion = datos
+        .filter((r) => r.metodo === 'produccion')
         .reduce((sum, r) => sum + r.olivas, 0);
 
-        const hojiblanca = datos
-        .filter((r) => r.metodo === 'hojiblanca')
+        const rejuvenicimiento = datos
+        .filter((r) => r.metodo === 'rejuvenicimiento')
         .reduce((sum, r) => sum + r.olivas, 0);
 
-      const kgpicual = datos
-        .filter((r) => r.metodo === 'picual')
-        .reduce((sum, r) => sum + r.cantidad, 0);
-      const kgarbequina = datos
-        .filter((r) => r.metodo === 'arbequina')
-        .reduce((sum, r) => sum + r.cantidad, 0);
-      const kghojiblanca = datos
-        .filter((r) => r.metodo === 'hojiblanca')
-        .reduce((sum, r) => sum + r.cantidad, 0);
 
       this.resumenHistorialExpandido[anio] = {
-        picual,
-        arbequina,
-        hojiblanca,
-        total: picual + arbequina + hojiblanca,
-        kgpicual,
-        kgarbequina,
-        kghojiblanca,
-        kgTotales: kgpicual + kgarbequina + kghojiblanca,
-        mediaOlivas: Math.round((kgpicual + kgarbequina + kghojiblanca) / (picual + arbequina + hojiblanca)),
+        formacion,
+        produccion,
+        rejuvenicimiento,
+        total: formacion + produccion + rejuvenicimiento,
       };
   }
   abrirModalYVerHistorial(riego: any) {
@@ -225,25 +210,22 @@ export class PodaComponent {
 
     enviarDatos(form: NgForm) {
       const datos = {
-        tipoaceituna: form.value.tipoaceituna,
-        cantidad: form.value.cantidad,
+        tipopoda: form.value.tipopoda,
         fecha: form.value.fechaSeleccionada,
         olivas: form.value.olivas,
         riegoSeleccionado: this.riegoSeleccionado.nombre
       };
 
-      this.http.post(`http://localhost:5000/recoleccion`, datos).subscribe(
+      this.http.post(`http://localhost:5000/poda`, datos).subscribe(
         (response) => {
           console.log('Datos enviados con éxito:', response);
           alert('Datos guardados correctamente.');
 
           form.reset(); 
-        this.tipoaceituna = ''; 
-        this.olivas = null;
-        this.cantidad = null;
-        this.fechaSeleccionada = null;
-        this.cerrarModal();
-
+          this.tipopoda = ''; 
+          this.olivas = null;
+          this.fechaSeleccionada = null;
+          this.cerrarModal();
         },
         (error) => {
           console.error('Error al enviar los datos:', error);

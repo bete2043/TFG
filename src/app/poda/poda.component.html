@@ -61,8 +61,8 @@
                             <div class="bd">{{ finca.olivos }}</div>
                         </div>
                         <div class="pares">
-                            <div class="casillas">Última recolección:</div>
-                            <div class="bd">{{ finca.ultima_recoleccion }}</div>
+                            <div class="casillas">Última poda:</div>
+                            <div class="bd">{{ finca.ultima_poda }}</div>
                         </div>
                     </div>
                     <button class="boton" (click)="abrirModalYVerHistorial(finca)" >Obtener Info</button>
@@ -77,29 +77,24 @@
     <div class="modal" *ngIf="modalAbierto">
         <div class="modal-contenido">
             <div class="modal-header">
-                <h2>Detalles de la Recolección de {{this.riegoSeleccionado.nombre}}</h2>
+                <h2>Detalles de la Poda de {{this.riegoSeleccionado.nombre}}</h2>
                 <button class="cerrar-modal" (click)="cerrarModalyHisotrial()">✖</button>
             </div>
             <form (ngSubmit)="enviarDatos(f)" #f="ngForm">
                 <div class="modal-body">
                     <div class="metodo">
-                        <p><strong>Tipo de aceituna:</strong></p>
-                        <select [(ngModel)]="tipoaceituna" name="tipoaceituna" required class="menu-metodo">
+                        <p><strong>Tipo de poda:</strong></p>
+                        <select [(ngModel)]="tipopoda" name="tipopoda" required class="menu-metodo">
                             <option value="" disabled selected hidden>Elige una opción</option>
-                            <option value="picual">Picual</option>
-                            <option value="arbequina">Arbequina</option>
-                            <option value="hojiblanca">Hojiblanca</option>
+                            <option value="formacion">Formación</option>
+                            <option value="produccion">Producción</option>
+                            <option value="rejuvenecimiento">Rejuvenecimiento</option>
                         </select>
-                    </div>
-            
-                    <div class="cantidad">
-                        <p><strong>Cantidad: </strong></p>
-                        <input id="cantidad" [(ngModel)]="cantidad" type="number" name="cantidad" placeholder="Introduce la cantidad de kilos cosechados" required />
                     </div>
 
                     <div class="cantidad">
-                        <p><strong>Olivas recolectadas: </strong></p>
-                        <input id="olivas" [(ngModel)]="olivas" type="number" name="olivas" placeholder="Introduce las olivas cosechadas" required>
+                        <p><strong>Olivas podadas: </strong></p>
+                        <input id="olivas" [(ngModel)]="olivas" type="number" name="olivas" placeholder="Introduce las olivas podadas" required>
                     </div>
             
                     <div class="fecha">
@@ -113,7 +108,7 @@
             </form>
             
             <div class="historial-modal" *ngIf="historialVisible.length > 0">
-                <h3>Historial de Recolección</h3>
+                <h3>Historial de Poda</h3>
             
                 <div class="menu-anios">
                     <label for="seleccionar-anio">Seleccionar Año:</label>
@@ -133,15 +128,13 @@
                                         <th>Fecha</th>
                                         <th>Número de olivas</th>
                                         <th>Tipo</th>
-                                        <th>Cantidad (Kg)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let recoleccion of historialPorAnio[anioSeleccionado]">
-                                        <td>{{ formatearFecha(recoleccion.fecha) }}</td>
-                                        <td>{{ recoleccion.olivas }}</td>
-                                        <td>{{ recoleccion.metodo }}</td>
-                                        <td>{{ recoleccion.cantidad }} G</td>
+                                    <tr *ngFor="let poda of historialPorAnio[anioSeleccionado]">
+                                        <td>{{ formatearFecha(poda.fecha) }}</td>
+                                        <td>{{ poda.olivas }}</td>
+                                        <td>{{ poda.metodo }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -151,15 +144,10 @@
                         <div *ngIf="resumenHistorialExpandido[anioSeleccionado]" class="resumen">
                             <h4>Resumen del Año {{ anioSeleccionado }}</h4>
                             <ul>
-                                <li><strong>Número de oliva picual:</strong> {{ resumenHistorialExpandido[anioSeleccionado].picual }}</li>
-                                <li><strong>Número de oliva arbequina:</strong> {{ resumenHistorialExpandido[anioSeleccionado].arbequina }}</li>
-                                <li><strong>Número de oliva hojiblanca:</strong> {{ resumenHistorialExpandido[anioSeleccionado].hojiblanca }}</li>
-                                <li><strong>Número de olivas totales:</strong> {{ resumenHistorialExpandido[anioSeleccionado].total }}</li>
-                                <li><strong>Kilogramos de picual:</strong> {{ resumenHistorialExpandido[anioSeleccionado].kgpicual }} Kg</li>
-                                <li><strong>Kilogramos de arbequina:</strong> {{ resumenHistorialExpandido[anioSeleccionado].kgarbequina }} Kg</li>
-                                <li><strong>Kilogramos de hojiblanca:</strong> {{ resumenHistorialExpandido[anioSeleccionado].kghojiblanca }} Kg</li>
-                                <li><strong>Kilogramos totales:</strong> {{ resumenHistorialExpandido[anioSeleccionado].kgTotales }} Kg</li>
-                                <li><strong>Kilogramos medios por oliva:</strong> {{ resumenHistorialExpandido[anioSeleccionado].mediaOlivas }} Kg/oliva</li>
+                                <li><strong>Poda de fomración:</strong> {{ resumenHistorialExpandido[anioSeleccionado].formacion }}</li>
+                                <li><strong>Poda de producción:</strong> {{ resumenHistorialExpandido[anioSeleccionado].produccion }}</li>
+                                <li><strong>Poda de rejuvenicimiento:</strong> {{ resumenHistorialExpandido[anioSeleccionado].rejuvenicimiento }}</li>
+                                <li><strong>Número de olivas totales podadas:</strong> {{ resumenHistorialExpandido[anioSeleccionado].total }}</li>
                             </ul>
                         </div>
                     </div>

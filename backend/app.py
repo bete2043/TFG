@@ -19,6 +19,9 @@ riego = mongo.db.riego
 abonado = mongo.db.abonado
 fitosanitarios = mongo.db.fitosanitarios
 recoleccion = mongo.db.recoleccion
+poda = mongo.db.poda
+plagas = mongo.db.plagas
+
 
 # Ruta para registrar un usuario
 @app.route('/crear_cuenta', methods=['POST'])
@@ -105,6 +108,17 @@ def obtener_fincas(user):
             })
 
     return jsonify(datos_fincas)
+"USUARIOS"
+""" Datos del usuario """
+@app.route('/usuarios/<nombre>', methods=['GET'])
+def datos_usuario(nombre):
+    user = users.find_one({'nombre': nombre})
+    if user:
+        user['_id'] = str(user['_id'])
+        return jsonify(user)
+    return jsonify({'error': 'Usuario no encontrado'}), 404
+""" Modificar datos del usuario """
+
 """ RIEGO """
 # Guardar los datos del riego
 @app.route('/riego' , methods=['POST'])
@@ -324,6 +338,113 @@ def historial_finca_recoleccion(nombre_finca):
 
     historial = finca.get("historial", [])
 
+    """ PODA """
+# Guardar los datos de la poda
+@app.route('/poda' , methods=['POST'])
+def datos_poda():
+    data = request.json
+    tipopoda = data.get('tipopoda')
+    fecha = data.get('fecha')
+    riegoSeleccionado = data.get('riegoSeleccionado')
+    olivas = data.get('olivas')
+
+    existe = poda.find_one({'nombre': riegoSeleccionado})
+    if existe:
+        resultado = poda.update_one(
+            {'nombre': riegoSeleccionado},  
+            {'$push': {                      
+                'historial': {
+                    'fecha': fecha,
+                    'olivas': olivas,
+                    'metodo': tipopoda,
+                }
+            }}
+        )
+
+        if resultado.modified_count > 0:
+            return jsonify({'message': 'Datos añadidos correctamente'}), 200
+        else:
+            return jsonify({'message': 'No se realizaron modificaciones'}), 400
+    else:
+        resultado = poda.insert_one({
+            'nombre': riegoSeleccionado,
+            'historial': [{
+                'fecha': fecha,
+                'olivas': olivas,
+                'metodo': tipopoda,
+            }]
+        })
+        if resultado.inserted_id:
+            return jsonify({'message': 'Nuevo riego creado correctamente'}), 201
+        else:
+            return jsonify({'message': 'Error al insertar datos'}), 500
+
+#Obtener el historial
+@app.route('/poda/<nombre_finca>' , methods=['GET'])
+def historial_finca_poda(nombre_finca):
+    finca = poda.find_one({"nombre": nombre_finca})
+
+    if not finca:
+        return jsonify({"error": "Finca no encontrada"}), 404
+
+    historial = finca.get("historial", [])
+
+    """ PLAGAS """
+# Guardar los datos de las plagas
+@app.route('/plagas' , methods=['POST'])
+def datos_plagas():
+    data = request.json
+    tipoplaga = data.get('tipoplaga')
+    gradoafectacion = data.get('gradoafectacion')
+    tratamiento = data.get('tratamiento')
+    fecha = data.get('fecha')
+    riegoSeleccionado = data.get('riegoSeleccionado')
+    olivas = data.get('olivas')
+
+    existe = plagas.find_one({'nombre': riegoSeleccionado})
+    if existe:
+        resultado = plagas.update_one(
+            {'nombre': riegoSeleccionado},  
+            {'$push': {                      
+                'historial': {
+                    'fecha': fecha,
+                    'olivas': olivas,
+                    'metodo': tipoplaga,
+                    'afectacion': gradoafectacion,
+                    'tratamiento': tratamiento
+                }
+            }}
+        )
+
+        if resultado.modified_count > 0:
+            return jsonify({'message': 'Datos añadidos correctamente'}), 200
+        else:
+            return jsonify({'message': 'No se realizaron modificaciones'}), 400
+    else:
+        resultado = plagas.insert_one({
+            'nombre': riegoSeleccionado,
+            'historial': [{
+                'fecha': fecha,
+                'olivas': olivas,
+                'metodo': tipoplaga,
+                'afectacion': gradoafectacion,
+                'tratamiento': tratamiento
+            }]
+        })
+        if resultado.inserted_id:
+            return jsonify({'message': 'Nuevo riego creado correctamente'}), 201
+        else:
+            return jsonify({'message': 'Error al insertar datos'}), 500
+
+#Obtener el historial
+@app.route('/plagas/<nombre_finca>' , methods=['GET'])
+def historial_finca_plagas(nombre_finca):
+    finca = plagas.find_one({"nombre": nombre_finca})
+
+    if not finca:
+        return jsonify({"error": "Finca no encontrada"}), 404
+
+    historial = finca.get("historial", [])
     return jsonify(historial)
 if __name__ == '__main__':
     app.run(debug=True)
