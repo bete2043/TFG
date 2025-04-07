@@ -14,8 +14,11 @@ mongo = PyMongo(app)
 # Colecciones
 users = mongo.db.usuarios
 ads = mongo.db.anuncios
-riego = mongo.db.riego 
+fincas = mongo.db.fincas
+riego = mongo.db.riego
 abonado = mongo.db.abonado
+fitosanitarios = mongo.db.fitosanitarios
+recoleccion = mongo.db.recoleccion
 
 # Ruta para registrar un usuario
 @app.route('/crear_cuenta', methods=['POST'])
@@ -81,24 +84,28 @@ def obtener_noticias():
         })
 
     return jsonify(resultado)
-""" RIEGO """
 # Fincas de cada usuario
-@app.route('/riego' , methods=['GET'])
-def obtener_fincas():
-    finca = riego.find()
-    fincas = []
-    for i in finca:
-        fincas.append({
-            "id": str(i["_id"]),
-            "nombre": i["nombre"],
-            "superficie": i["superficie"],
-            "ultimo_riego": i["ultimo_riego"],
-            "riego": i["riego"],
-            "propietario": i["propietario"]
-        })
+@app.route('/fincas/<user>' , methods=['GET'])
+def obtener_fincas(user):
+    finca = users.find_one({'username': user})
+    if not finca:
+        return jsonify({"error": "Usuario no encontrado " + user}), 404
+    fincas_user = finca.get("fincas", [])
+    
+    datos_fincas = []
 
-    return jsonify(fincas)
+    for i in fincas_user:
+        datos = fincas.find_one({'nombre':i})
+        if datos:
+            datos_fincas.append({
+                "id": str(datos["_id"]),
+                "nombre": datos["nombre"],
+                "superficie": datos["superficie"],
+                "olivos": datos["olivos"]
+            })
 
+    return jsonify(datos_fincas)
+""" RIEGO """
 # Guardar los datos del riego
 @app.route('/riego' , methods=['POST'])
 def datos_riego():
@@ -108,25 +115,40 @@ def datos_riego():
     fecha = data.get('fecha')
     riegoSeleccionado = data.get('riegoSeleccionado')
 
-    resultado = riego.update_one(
-        {'nombre': riegoSeleccionado},  
-        {'$push': {                      
-            'historial': {
+    existe = riego.find_one({'nombre': riegoSeleccionado})
+    if existe:
+        resultado = riego.update_one(
+            {'nombre': riegoSeleccionado},  
+            {'$push': {                      
+                'historial': {
+                    'fecha': fecha,
+                    'metodo': metodoRiego,
+                    'cantidad': cantidad
+                }
+            }}
+        )
+
+        if resultado.modified_count > 0:
+            return jsonify({'message': 'Datos añadidos correctamente'}), 200
+        else:
+            return jsonify({'message': 'No se realizaron modificaciones'}), 400
+    else:
+        resultado = riego.insert_one({
+            'nombre': riegoSeleccionado,
+            'historial': [{
                 'fecha': fecha,
                 'metodo': metodoRiego,
                 'cantidad': cantidad
-            }
-        }}
-    )
-
-    if resultado.modified_count > 0:
-        return jsonify({'message': 'Datos añadidos correctamente'}), 200
-    else:
-        return jsonify({'message': 'Error: No se encontró el riego seleccionado'}), 404
+            }]
+        })
+        if resultado.inserted_id:
+            return jsonify({'message': 'Nuevo riego creado correctamente'}), 201
+        else:
+            return jsonify({'message': 'Error al insertar datos'}), 500
 
 #Obtener el historial
 @app.route('/riego/<nombre_finca>' , methods=['GET'])
-def historial_finca(nombre_finca):
+def historial_finca_riego(nombre_finca):
     finca = riego.find_one({"nombre": nombre_finca})
 
     if not finca:
@@ -135,6 +157,173 @@ def historial_finca(nombre_finca):
     historial = finca.get("historial", [])
 
     return jsonify(historial)
+""" ABONADO """
+# Guardar los datos del abonado
+@app.route('/abonado' , methods=['POST'])
+def datos_abonado():
+    data = request.json
+    metodoAbonado = data.get('metodoAbonado')
+    cantidad = data.get('cantidad')
+    fecha = data.get('fecha')
+    riegoSeleccionado = data.get('riegoSeleccionado')
+    nombreAbono = data.get('nombreAbono')
 
+    existe = abonado.find_one({'nombre': riegoSeleccionado})
+    if existe:
+        resultado = abonado.update_one(
+            {'nombre': riegoSeleccionado},  
+            {'$push': {                      
+                'historial': {
+                    'fecha': fecha,
+                    'nombre': nombreAbono,
+                    'metodo': metodoAbonado,
+                    'cantidad': cantidad
+                }
+            }}
+        )
+
+        if resultado.modified_count > 0:
+            return jsonify({'message': 'Datos añadidos correctamente'}), 200
+        else:
+            return jsonify({'message': 'No se realizaron modificaciones'}), 400
+    else:
+        resultado = abonado.insert_one({
+            'nombre': riegoSeleccionado,
+            'historial': [{
+                'fecha': fecha,
+                'nombre': nombreAbono,
+                'metodo': metodoAbonado,
+                'cantidad': cantidad
+            }]
+        })
+        if resultado.inserted_id:
+            return jsonify({'message': 'Nuevo riego creado correctamente'}), 201
+        else:
+            return jsonify({'message': 'Error al insertar datos'}), 500
+
+#Obtener el historial
+@app.route('/abonado/<nombre_finca>' , methods=['GET'])
+def historial_finca_abonado(nombre_finca):
+    finca = abonado.find_one({"nombre": nombre_finca})
+
+    if not finca:
+        return jsonify({"error": "Finca no encontrada"}), 404
+
+    historial = finca.get("historial", [])
+
+    return jsonify(historial)
+
+""" FITOSANITARIOS """
+# Guardar los datos de los fitosanitarios
+@app.route('/fitosanitarios' , methods=['POST'])
+def datos_fitosanitarios():
+    data = request.json
+    tipofitosanitario = data.get('tipofitosanitario')
+    cantidad = data.get('cantidad')
+    fecha = data.get('fecha')
+    riegoSeleccionado = data.get('riegoSeleccionado')
+    nombreFitosanitario = data.get('nombreFitosanitario')
+
+    existe = fitosanitarios.find_one({'nombre': riegoSeleccionado})
+    if existe:
+        resultado = fitosanitarios.update_one(
+            {'nombre': riegoSeleccionado},  
+            {'$push': {                      
+                'historial': {
+                    'fecha': fecha,
+                    'nombre': nombreFitosanitario,
+                    'metodo': tipofitosanitario,
+                    'cantidad': cantidad
+                }
+            }}
+        )
+
+        if resultado.modified_count > 0:
+            return jsonify({'message': 'Datos añadidos correctamente'}), 200
+        else:
+            return jsonify({'message': 'No se realizaron modificaciones'}), 400
+    else:
+        resultado = fitosanitarios.insert_one({
+            'nombre': riegoSeleccionado,
+            'historial': [{
+                'fecha': fecha,
+                'nombre': nombreFitosanitario,
+                'metodo': tipofitosanitario,
+                'cantidad': cantidad
+            }]
+        })
+        if resultado.inserted_id:
+            return jsonify({'message': 'Nuevo riego creado correctamente'}), 201
+        else:
+            return jsonify({'message': 'Error al insertar datos'}), 500
+
+#Obtener el historial
+@app.route('/fitosanitarios/<nombre_finca>' , methods=['GET'])
+def historial_finca_fitosanitarios(nombre_finca):
+    finca = fitosanitarios.find_one({"nombre": nombre_finca})
+
+    if not finca:
+        return jsonify({"error": "Finca no encontrada"}), 404
+
+    historial = finca.get("historial", [])
+    
+    return jsonify(historial)
+
+
+""" RECOLECCION """
+# Guardar los datos de la recoleccion
+@app.route('/recoleccion' , methods=['POST'])
+def datos_recoleccion():
+    data = request.json
+    tipoaceituna = data.get('tipoaceituna')
+    cantidad = data.get('cantidad')
+    fecha = data.get('fecha')
+    riegoSeleccionado = data.get('riegoSeleccionado')
+    olivas = data.get('olivas')
+
+    existe = recoleccion.find_one({'nombre': riegoSeleccionado})
+    if existe:
+        resultado = recoleccion.update_one(
+            {'nombre': riegoSeleccionado},  
+            {'$push': {                      
+                'historial': {
+                    'fecha': fecha,
+                    'olivas': olivas,
+                    'metodo': tipoaceituna,
+                    'cantidad': cantidad
+                }
+            }}
+        )
+
+        if resultado.modified_count > 0:
+            return jsonify({'message': 'Datos añadidos correctamente'}), 200
+        else:
+            return jsonify({'message': 'No se realizaron modificaciones'}), 400
+    else:
+        resultado = recoleccion.insert_one({
+            'nombre': riegoSeleccionado,
+            'historial': [{
+                'fecha': fecha,
+                'olivas': olivas,
+                'metodo': tipoaceituna,
+                'cantidad': cantidad
+            }]
+        })
+        if resultado.inserted_id:
+            return jsonify({'message': 'Nuevo riego creado correctamente'}), 201
+        else:
+            return jsonify({'message': 'Error al insertar datos'}), 500
+
+#Obtener el historial
+@app.route('/recoleccion/<nombre_finca>' , methods=['GET'])
+def historial_finca_recoleccion(nombre_finca):
+    finca = recoleccion.find_one({"nombre": nombre_finca})
+
+    if not finca:
+        return jsonify({"error": "Finca no encontrada"}), 404
+
+    historial = finca.get("historial", [])
+
+    return jsonify(historial)
 if __name__ == '__main__':
     app.run(debug=True)

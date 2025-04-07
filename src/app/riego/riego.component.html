@@ -58,7 +58,7 @@
                         </div>
                         <div class="pares">
                             <div class="casillas">Numero de olivas:</div>
-                            <div class="bd">{{ riego.riego }}</div>
+                            <div class="bd">{{ riego.olivos }}</div>
                         </div>
                         <div class="pares">
                             <div class="casillas">Último riego:</div>
@@ -94,7 +94,7 @@
             
                     <div class="cantidad">
                         <p><strong>Cantidad: </strong></p>
-                        <input id="cantidad" [(ngModel)]="cantidad" type="number" name="cantidad" placeholder="Introduce la cantidad en litros" required />
+                        <input id="cantidad" [(ngModel)]="cantidad" type="number" name="cantidad" placeholder="Introduce la cantidad en litros/oliva" required />
                     </div>
             
                     <div class="fecha">
@@ -127,7 +127,7 @@
                                     <tr>
                                         <th>Fecha</th>
                                         <th>Método</th>
-                                        <th>Cantidad (L)</th>
+                                        <th>Cantidad (L/oliva)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -146,9 +146,9 @@
                             <ul>
                                 <li><strong>Días con lluvia:</strong> {{ resumenHistorialExpandido[anioSeleccionado].diasLluvia }}</li>
                                 <li><strong>Días con riego:</strong> {{ resumenHistorialExpandido[anioSeleccionado].diasRiego }}</li>
-                                <li><strong>Litros de lluvia:</strong> {{ resumenHistorialExpandido[anioSeleccionado].litrosLluvia }} L</li>
-                                <li><strong>Litros de riego:</strong> {{ resumenHistorialExpandido[anioSeleccionado].litrosRiego }} L</li>
-                                <li><strong>Litros totales:</strong> {{ resumenHistorialExpandido[anioSeleccionado].litrosTotales }} L</li>
+                                <li><strong>Litros de lluvia:</strong> {{ resumenHistorialExpandido[anioSeleccionado].litrosLluvia }} L/oliva</li>
+                                <li><strong>Litros de riego:</strong> {{ resumenHistorialExpandido[anioSeleccionado].litrosRiego }} L/oliva</li>
+                                <li><strong>Litros totales:</strong> {{ resumenHistorialExpandido[anioSeleccionado].litrosTotales }} L/oliva</li>
                             </ul>
                         </div>
                     </div>

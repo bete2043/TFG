@@ -52,9 +52,9 @@ export class RiegoComponent {
       this.usuarioAutenticado = localStorage.getItem('usuario');
       console.log('Usuario recuperado de localStorage: ', this.usuarioAutenticado); 
       
-      this.http.get<any[]>(`http://localhost:5000/riego`).subscribe(
+      this.http.get<any[]>(`http://localhost:5000/fincas/${this.usuarioAutenticado}`).subscribe(
         (response) => {
-          this.info = response.filter(riego => riego.propietario === this.usuarioAutenticado);    
+          this.info = response;
           this.info.forEach((riego, index) => {
             this.obtenerUltimoRiego(riego.nombre, index);
           });
@@ -139,6 +139,12 @@ export class RiegoComponent {
     }
 
     verHistorial(nombreFinca: string) {
+      if (!nombreFinca) {
+        console.error('El nombre de la finca es inválido');
+        alert('Nombre de finca no válido');
+        return;
+      }
+
       this.http.get<any[]>(`http://localhost:5000/riego/${nombreFinca}`).subscribe(
         (response) => {
           this.historialVisible = response.sort((a, b) => {
@@ -203,9 +209,10 @@ export class RiegoComponent {
         metodoRiego: form.value.metodoRiego,
         cantidad: form.value.cantidad,
         fecha: form.value.fechaSeleccionada,
+        riegoSeleccionado: this.riegoSeleccionado.nombre
       };
 
-      this.http.post(`http://localhost:5000/riego/${this.usuarioAutenticado}`, datos).subscribe(
+      this.http.post(`http://localhost:5000/riego`, datos).subscribe(
         (response) => {
           console.log('Datos enviados con éxito:', response);
           alert('Datos guardados correctamente.');
@@ -214,6 +221,8 @@ export class RiegoComponent {
         this.metodoRiego = ''; 
         this.cantidad = null;
         this.fechaSeleccionada = null;
+        this.cerrarModal();
+
         },
         (error) => {
           console.error('Error al enviar los datos:', error);

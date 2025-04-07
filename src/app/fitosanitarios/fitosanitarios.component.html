@@ -5,23 +5,20 @@
 <body>
     <div class="barra-superior">    
         <div class="logo-app"></div>
-       
         <div class="menu1" *ngIf="usuarioAutenticado">
             <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
             <a routerLink="/riego" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Riego</a>
             <a routerLink="/abonado" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Abonado</a>
             <a routerLink="/fitosanitario" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Fitosanitarios</a>
         </div>
-          
         <div class="foto-app"></div>
-          
         <div class="menu2" *ngIf="usuarioAutenticado">
             <a routerLink="/recoleccion" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Recolección</a>
             <a routerLink="/mapa" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mapa</a>
             <a routerLink="/poda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Poda</a>
             <a routerLink="/plagas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Plagas</a>
         </div>
-    
+
         <!-- Mostrar nombre y botón de cerrar sesión si el usuario ha iniciado sesión -->
         <div class="usuario-info" *ngIf="usuarioAutenticado; else loginSection">
             <div class="usuario-avatar">
@@ -47,8 +44,129 @@
     </div>
     
     <div class="cuerpo">
-        Hola
+        <button (click)="anterior()" class="boton-navegacion">Anterior</button>
+    
+        <div class="contenedor-carrusel">
+            <div class="fichas" [style.transform]="'rotateY(' + (-indiceActual * (360 / info.length)) + 'deg)'">
+                <div class="ficha" *ngFor="let finca of info; let i = index"
+                     [style.transform]="'rotateY(' + (i * (360 / info.length)) + 'deg) translateZ(40rem)'">
+                    <div class="nombre">{{ finca.nombre }}</div>
+                    <div class="info">
+                        <div class="pares">
+                            <div class="casillas">Superficie:</div>
+                            <div class="bd">{{ finca.superficie }} hectáreas</div>
+                        </div>
+                        <div class="pares">
+                            <div class="casillas">Numero de olivas:</div>
+                            <div class="bd">{{ finca.olivos }}</div>
+                        </div>
+                        <div class="pares">
+                            <div class="casillas">Última cura:</div>
+                            <div class="bd">{{ finca.ultima_cura }}</div>
+                        </div>
+                    </div>
+                    <button class="boton" (click)="abrirModalYVerHistorial(finca)" >Obtener Info</button>
+                </div>
+            </div>
+        </div>
+    
+        <button (click)="siguiente()" class="boton-navegacion">Siguiente</button>
     </div>
+    
+    <!-- Modal -->
+    <div class="modal" *ngIf="modalAbierto">
+        <div class="modal-contenido">
+            <div class="modal-header">
+                <h2>Detalles de los Fitosanitarios de {{this.riegoSeleccionado.nombre}}</h2>
+                <button class="cerrar-modal" (click)="cerrarModalyHisotrial()">✖</button>
+            </div>
+            <form (ngSubmit)="enviarDatos(f)" #f="ngForm">
+                <div class="modal-body">
+                    <div class="metodo">
+                        <p><strong>Tipo de fitosanitario:</strong></p>
+                        <select [(ngModel)]="tipofitosaniraio" name="tipofitosaniraio" required class="menu-metodo">
+                            <option value="" disabled selected hidden>Elige una opción</option>
+                            <option value="insecticida">Insecticida</option>
+                            <option value="fungicida">Fungicida</option>
+                            <option value="herbicida">Herbicida</option>
+                        </select>
+                    </div>
+
+                    <div class="cantidad">
+                        <p><strong>Nombre: </strong></p>
+                        <input id="nombreFitosanitario" [(ngModel)]="nombreFitosanitario" type="text" name="nombreFitosanitario" placeholder="Introduce el nombre del fitosanitario" required />
+                    </div>
+            
+                    <div class="cantidad">
+                        <p><strong>Cantidad: </strong></p>
+                        <input id="cantidad" [(ngModel)]="cantidad" type="number" name="cantidad" placeholder="Introduce la cantidad en gramos/oliva" required />
+                    </div>
+            
+                    <div class="fecha">
+                        <p><strong>Fecha: </strong></p>
+                        <input type="date" [(ngModel)]="fechaSeleccionada" name="fechaSeleccionada"
+                                max="{{ fechaActual }}" class="input-fecha" required />
+                    </div>
+                </div>
+            
+                <button type="submit" [disabled]="!f.valid" class="btn-enviar">Enviar</button>
+            </form>
+            
+            <div class="historial-modal" *ngIf="historialVisible.length > 0">
+                <h3>Historial de Cura</h3>
+            
+                <div class="menu-anios">
+                    <label for="seleccionar-anio">Seleccionar Año:</label>
+                    <select id="seleccionar-anio" [(ngModel)]="anioSeleccionado" (change)="cargarHistorialAnio()">
+                        <option value="" disabled selected>Elige un año</option>
+                        <option *ngFor="let anio of historialAnios" [value]="anio">{{ anio }}</option>
+                    </select>
+                </div>
+            
+                <div *ngIf="anioSeleccionado && historialPorAnio[anioSeleccionado]" class="historial-container">
+                    <div class="content">
+                        <div class="tabla">
+                            <h4>Historial del Año {{ anioSeleccionado }}</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Cantidad (G/oliva)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let fitosanitario of historialPorAnio[anioSeleccionado]">
+                                        <td>{{ formatearFecha(fitosanitario.fecha) }}</td>
+                                        <td>{{ fitosanitario.nombre }}</td>
+                                        <td>{{ fitosanitario.metodo }}</td>
+                                        <td>{{ fitosanitario.cantidad }} G</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                
+                        <!-- Resumen del año seleccionado -->
+                        <div *ngIf="resumenHistorialExpandido[anioSeleccionado]" class="resumen">
+                            <h4>Resumen del Año {{ anioSeleccionado }}</h4>
+                            <ul>
+                                <li><strong>Veces insecticida:</strong> {{ resumenHistorialExpandido[anioSeleccionado].insecticida }}</li>
+                                <li><strong>Veces fungicida:</strong> {{ resumenHistorialExpandido[anioSeleccionado].fungicida }}</li>
+                                <li><strong>Veces herbicida:</strong> {{ resumenHistorialExpandido[anioSeleccionado].herbicida }}</li>
+                                <li><strong>Gramos de insecticida:</strong> {{ resumenHistorialExpandido[anioSeleccionado].gramosinsecticida }} G/oliva</li>
+                                <li><strong>Gramos de fungicida:</strong> {{ resumenHistorialExpandido[anioSeleccionado].gramosfungicida }} G/oliva</li>
+                                <li><strong>Gramos de herbicida:</strong> {{ resumenHistorialExpandido[anioSeleccionado].gramosherbcida }} G/oliva</li>
+                                <li><strong>Gramos totales:</strong> {{ resumenHistorialExpandido[anioSeleccionado].gramosTotales }} G/oliva</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button *ngIf="anioSeleccionado" class="btn-hst" (click)="ocultarHistorial()">Ocultar Historial</button>
+                </div>
+            </div>            
+        </div>
+    </div>
+
 
     <div class="pie">
         <div class="texto-pie">

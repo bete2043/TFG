@@ -48,24 +48,24 @@
     
         <div class="contenedor-carrusel">
             <div class="fichas" [style.transform]="'rotateY(' + (-indiceActual * (360 / info.length)) + 'deg)'">
-                <div class="ficha" *ngFor="let riego of info; let i = index"
+                <div class="ficha" *ngFor="let finca of info; let i = index"
                      [style.transform]="'rotateY(' + (i * (360 / info.length)) + 'deg) translateZ(40rem)'">
-                    <div class="nombre">{{ riego.nombre }}</div>
+                    <div class="nombre">{{ finca.nombre }}</div>
                     <div class="info">
                         <div class="pares">
                             <div class="casillas">Superficie:</div>
-                            <div class="bd">{{ riego.superficie }} hectáreas</div>
+                            <div class="bd">{{ finca.superficie }} hectáreas</div>
                         </div>
                         <div class="pares">
                             <div class="casillas">Numero de olivas:</div>
-                            <div class="bd">{{ riego.riego }}</div>
+                            <div class="bd">{{ finca.olivos }}</div>
                         </div>
                         <div class="pares">
                             <div class="casillas">Último abonado:</div>
-                            <div class="bd">{{ riego.ultimo_riego }}</div>
+                            <div class="bd">{{ finca.ultimo_abonado }}</div>
                         </div>
                     </div>
-                    <button class="boton" (click)="abrirModalYVerHistorial(riego)" >Obtener Info</button>
+                    <button class="boton" (click)="abrirModalYVerHistorial(finca)" >Obtener Info</button>
                 </div>
             </div>
         </div>
@@ -78,18 +78,41 @@
         <div class="modal-contenido">
             <div class="modal-header">
                 <h2>Detalles del Abonado de {{this.riegoSeleccionado.nombre}}</h2>
-                <button class="cerrar-modal" (click)="cerrarModal()">✖</button>
+                <button class="cerrar-modal" (click)="cerrarModalyHisotrial()">✖</button>
             </div>
             <form (ngSubmit)="enviarDatos(f)" #f="ngForm">
                 <div class="modal-body">
-                    Poner lo que vas a meter
+                    <div class="metodo">
+                        <p><strong>Tipo de abono:</strong></p>
+                        <select [(ngModel)]="metodoAbonado" name="metodoAbonado" required class="menu-metodo">
+                            <option value="" disabled selected hidden>Elige una opción</option>
+                            <option value="organico">Orgánico</option>
+                            <option value="quimico">Químico</option>
+                        </select>
+                    </div>
+
+                    <div class="cantidad">
+                        <p><strong>Nombre: </strong></p>
+                        <input id="nombreAbono" [(ngModel)]="nombreAbono" name="nombreAbono" placeholder="Introduce el nombre del abono" required />
+                    </div>
+            
+                    <div class="cantidad">
+                        <p><strong>Cantidad: </strong></p>
+                        <input id="cantidad" [(ngModel)]="cantidad" type="number" name="cantidad" placeholder="Introduce la cantidad en gramos/oliva" required />
+                    </div>
+            
+                    <div class="fecha">
+                        <p><strong>Fecha: </strong></p>
+                        <input type="date" [(ngModel)]="fechaSeleccionada" name="fechaSeleccionada"
+                                max="{{ fechaActual }}" class="input-fecha" required />
+                    </div>
                 </div>
             
                 <button type="submit" [disabled]="!f.valid" class="btn-enviar">Enviar</button>
             </form>
             
             <div class="historial-modal" *ngIf="historialVisible.length > 0">
-                <h3>Historial de Abonado</h3>
+                <h3>Historial del Abonado</h3>
             
                 <div class="menu-anios">
                     <label for="seleccionar-anio">Seleccionar Año:</label>
@@ -103,11 +126,36 @@
                     <div class="content">
                         <div class="tabla">
                             <h4>Historial del Año {{ anioSeleccionado }}</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Cantidad (G/oliva)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let abono of historialPorAnio[anioSeleccionado]">
+                                        <td>{{ formatearFecha(abono.fecha) }}</td>
+                                        <td>{{ abono.nombre }}</td>
+                                        <td>{{ abono.metodo }}</td>
+                                        <td>{{ abono.cantidad }} G</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                 
                         <!-- Resumen del año seleccionado -->
                         <div *ngIf="resumenHistorialExpandido[anioSeleccionado]" class="resumen">
                             <h4>Resumen del Año {{ anioSeleccionado }}</h4>
+                            <ul>
+                                <li><strong>Veces de abono químico:</strong> {{ resumenHistorialExpandido[anioSeleccionado].vecesQuimico }}</li>
+                                <li><strong>Veces de abono orgánico:</strong> {{ resumenHistorialExpandido[anioSeleccionado].vecesOrganico }}</li>
+                                <li><strong>Gramos de abono químico:</strong> {{ resumenHistorialExpandido[anioSeleccionado].gramosQuimico }} G/oliva</li>
+                                <li><strong>Gramos de abono orgánico:</strong> {{ resumenHistorialExpandido[anioSeleccionado].gramosOrganico }} G/oliva</li>
+                                <li><strong>Gramos totales:</strong> {{ resumenHistorialExpandido[anioSeleccionado].gramosTotales }} G/oliva</li>
+                            </ul>
                         </div>
                     </div>
                     <button *ngIf="anioSeleccionado" class="btn-hst" (click)="ocultarHistorial()">Ocultar Historial</button>
