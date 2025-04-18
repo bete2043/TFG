@@ -19,7 +19,9 @@ export class PlagasComponent {usuarioAutenticado: string | null = null;
     indiceActual: number = 0;
     modalAbierto: boolean = false; 
     riegoSeleccionado: any = null;
-    tipoaceituna: string = '';
+    tipoplaga: string = '';
+    gradoafectacion: string = '';
+    tratamiento: string = '';
     cantidad: number | null = null;
     olivas: number | null = null;
     fechaSeleccionada: string | null = null;  
@@ -56,7 +58,7 @@ export class PlagasComponent {usuarioAutenticado: string | null = null;
         (response) => {
           this.info = response;
           this.info.forEach((finca, index) => {
-            this.obtenerUltimoCura(finca.nombre, index);
+            this.obtenerUltimaPlaga(finca.nombre, index);
           });
           this.agruparPorAnio();
           this.extraerAnios();
@@ -108,22 +110,22 @@ export class PlagasComponent {usuarioAutenticado: string | null = null;
         console.log('Año seleccionado:', this.anioSeleccionado); 
       }
     }   
-    obtenerUltimoCura(nombreFinca: string, index: number): void {
-      this.http.get<any[]>(`http://localhost:5000/recoleccion/${nombreFinca}`).subscribe(
+    obtenerUltimaPlaga(nombreFinca: string, index: number): void {
+      this.http.get<any[]>(`http://localhost:5000/plagas/${nombreFinca}`).subscribe(
         (historial) => {
           if (this.info && this.info[index]) { 
             if (historial.length > 0) {
               historial.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-              this.info[index].ultima_recoleccion = this.formatearFecha(historial[0].fecha);
+              this.info[index].ultima_plaga = this.formatearFecha(historial[0].fecha);
             } else {
-              this.info[index].ultima_recoleccion = 'No hay registros';
+              this.info[index].ultima_plaga = 'No hay registros';
             }
           }
         },
         (error) => {
           console.error(`Error al obtener el historial de ${nombreFinca}`, error);
           if (this.info && this.info[index]) { 
-            this.info[index].ultima_recoleccion = 'No hay registros';
+            this.info[index].ultima_plaga = 'No hay registros';
           }
         }
       );
@@ -145,7 +147,7 @@ export class PlagasComponent {usuarioAutenticado: string | null = null;
         return;
       }
 
-      this.http.get<any[]>(`http://localhost:5000/recoleccion/${nombreFinca}`).subscribe(
+      this.http.get<any[]>(`http://localhost:5000/plagas/${nombreFinca}`).subscribe(
         (response) => {
           this.historialVisible = response.sort((a, b) => {
             const fechaA = new Date(a.fecha).getTime();
@@ -181,38 +183,37 @@ export class PlagasComponent {usuarioAutenticado: string | null = null;
     // Calcular resumen solo si aún no ha sido generado
       const datos = this.historialPorAnio[anio];
 
-      const picual = datos
-        .filter((r) => r.metodo === 'picual')
+      const mosca = datos
+        .filter((r) => r.metodo === 'mosca')
         .reduce((sum, r) => sum + r.olivas, 0);
 
-        const arbequina = datos
-        .filter((r) => r.metodo === 'arbequina')
+        const polilla = datos
+        .filter((r) => r.metodo === 'polilla')
         .reduce((sum, r) => sum + r.olivas, 0);
 
-        const hojiblanca = datos
-        .filter((r) => r.metodo === 'hojiblanca')
+        const cochinilla = datos
+        .filter((r) => r.metodo === 'cochinilla')
         .reduce((sum, r) => sum + r.olivas, 0);
 
-      const kgpicual = datos
-        .filter((r) => r.metodo === 'picual')
-        .reduce((sum, r) => sum + r.cantidad, 0);
-      const kgarbequina = datos
-        .filter((r) => r.metodo === 'arbequina')
-        .reduce((sum, r) => sum + r.cantidad, 0);
-      const kghojiblanca = datos
-        .filter((r) => r.metodo === 'hojiblanca')
-        .reduce((sum, r) => sum + r.cantidad, 0);
+        const leve = datos
+        .filter((r) => r.afectacion === 'leve')
+        .reduce((sum, r) => sum + r.olivas, 0);
+
+        const media = datos
+        .filter((r) => r.afectacion === 'media')
+        .reduce((sum, r) => sum + r.olivas, 0);
+
+        const severa = datos
+        .filter((r) => r.afectacion === 'severa')
+        .reduce((sum, r) => sum + r.olivas, 0);
 
       this.resumenHistorialExpandido[anio] = {
-        picual,
-        arbequina,
-        hojiblanca,
-        total: picual + arbequina + hojiblanca,
-        kgpicual,
-        kgarbequina,
-        kghojiblanca,
-        kgTotales: kgpicual + kgarbequina + kghojiblanca,
-        mediaOlivas: Math.round((kgpicual + kgarbequina + kghojiblanca) / (picual + arbequina + hojiblanca)),
+        mosca,
+        polilla,
+        cochinilla,
+        total: mosca + polilla + cochinilla,
+        salvadas : leve + media,
+        severa
       };
   }
   abrirModalYVerHistorial(riego: any) {
@@ -223,22 +224,25 @@ export class PlagasComponent {usuarioAutenticado: string | null = null;
 
     enviarDatos(form: NgForm) {
       const datos = {
-        tipoaceituna: form.value.tipoaceituna,
-        cantidad: form.value.cantidad,
+        tipoplaga: form.value.tipoplaga,
+        gradoafectacion: form.value.gradoafectacion,
+        tratamiento: form.value.tratamiento,
         fecha: form.value.fechaSeleccionada,
         olivas: form.value.olivas,
+
         riegoSeleccionado: this.riegoSeleccionado.nombre
       };
 
-      this.http.post(`http://localhost:5000/recoleccion`, datos).subscribe(
+      this.http.post(`http://localhost:5000/plagas`, datos).subscribe(
         (response) => {
           console.log('Datos enviados con éxito:', response);
           alert('Datos guardados correctamente.');
 
           form.reset(); 
-        this.tipoaceituna = ''; 
+        this.tipoplaga = ''; 
         this.olivas = null;
-        this.cantidad = null;
+        this.gradoafectacion = '';
+        this.tratamiento = '';
         this.fechaSeleccionada = null;
         this.cerrarModal();
 

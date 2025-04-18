@@ -11,6 +11,7 @@ import { AbonadoComponent } from './abonado/abonado.component';
 import { PlagasComponent } from './plagas/plagas.component';
 import { RecoleccionComponent } from './recoleccion/recoleccion.component';
 import { PerfilComponent } from './perfil/perfil.component';
+import { FincasComponent } from './fincas/fincas.component';
 
 export const routes: Routes = [
      {path:'', component:InicioComponent},
@@ -23,11 +24,12 @@ export const routes: Routes = [
      {path: 'abonado', component:AbonadoComponent},
      {path: 'plagas', component:PlagasComponent},
      {path: 'recoleccion', component:RecoleccionComponent},
-     {path: 'perfil', component:PerfilComponent}
+     {path: 'perfil', component:PerfilComponent},
+     {path: 'fincas', component:FincasComponent}
 ];
 
 @NgModule({
      imports: [RouterModule.forRoot(routes)],
      exports: [RouterModule]
-   })
-   export class AppRoutingModule { }
+})
+export class AppRoutingModule { }

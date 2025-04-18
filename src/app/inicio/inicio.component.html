@@ -4,38 +4,13 @@
 <body>
     <div class="barra-superior">    
         <div class="logo-app"></div>
-    
-        <div class="menu1" *ngIf="usuarioAutenticado">
-            <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
-            <a routerLink="/riego" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Riego</a>
-            <a routerLink="/abonado" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Abonado</a>
-            <a routerLink="/fitosanitario" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Fitosanitarios</a>
-        </div>
         
         <div class="foto-app"></div>
         
-        <div class="menu2" *ngIf="usuarioAutenticado">
-            <a routerLink="/recoleccion" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Recolección</a>
-            <a routerLink="/mapa" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mapa</a>
-            <a routerLink="/poda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Poda</a>
-            <a routerLink="/plagas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Plagas</a>
-        </div>
-    
         <!-- Mostrar nombre y botón de cerrar sesión si el usuario ha iniciado sesión -->
         <div class="usuario-info" *ngIf="usuarioAutenticado; else loginSection">
             <div class="usuario-avatar">
                 <span class="inicial" *ngIf="usuarioAutenticado">{{ getInicial() }}</span>
-            </div>
-            
-            <!-- Botón de menú desplegable -->
-            <div class="dropdown">
-                <button class="dropdown-toggle" (click)="toggleMenu($event)"></button>
-    
-                <!-- Menú desplegable -->
-                <ul class="dropdown-menu" *ngIf="menuAbierto">
-                    <li (click)="perfil()">Perfil</li>
-                    <li (click)="cerrarSesion()">Cerrar sesión</li>
-                </ul>
             </div>
         </div>
     
@@ -44,20 +19,57 @@
             <button class="login" (click)="iniciarSesion()"></button>
         </ng-template>
     </div>
-    
-    <div class="cuerpo" >
-        <div *ngFor="let anuncio of info; let i = index">
-            <div class="contenido1" *ngIf = "i % 2 === 0">
-                <div class="texto1">{{anuncio.descripcion}}</div>
-                <img class="imagen1" src = "{{anuncio.foto}}"/>
-            </div>
 
-            <div class="contenido2" *ngIf = "i % 2 !== 0">
-                <img class="imagen2" src = "{{anuncio.foto}}"/>
-                <div class="texto2">{{anuncio.descripcion}}</div>
+    <div class="contenido-pagina">
+        <!-- SOLO si hay usuario -->
+        <div class="barra-lateral" *ngIf="usuarioAutenticado">
+            <div class="menu-lateral">
+                <div class="menu-items-superiores">
+                    <div class="item-menu desplegable" (mouseenter)="toggleFincas(true)" 
+                    (mouseleave)="toggleFincas(false)">
+                        <button class="item-menus" (click)="mostrarContenido('fincas')" >
+                            Fincas
+                        <span class="flecha" [class.abierta]="fincasAbierto">▼</span>
+                        </button>
+                        <div class="submenu-fincas" *ngIf="fincasAbierto">
+                        <button
+                            class="item-submenu" *ngFor="let finca of info; let i = index"
+                            (click)="seleccionarFinca(finca)"
+                        >
+                            {{ finca.nombre }}
+                        </button>
+                        </div>
+                    </div>
+                                        <button class="item-menu" (click)="mostrarContenido('perfil')">Perfil</button>
+                    <button class="item-menu" (click)="mostrarContenido('noticias')">Noticias</button>
+                    <button class="item-menu" (click)="mostrarContenido('noticias')">Balance</button>
+                </div>
+                <button class="item-menu cerrar-sesion" (click)="cerrarSesion()">Cerrar sesión</button>
             </div>
         </div>
+        
+
+        <div class="contenido-central">
+            <ng-container *ngIf="usuarioAutenticado; else soloNoticias">
+                <ng-container [ngSwitch]="seccionActual">
+                <div *ngSwitchCase="'fincas'">
+                    <app-fincas *ngIf="seccionActual === 'fincas'" [finca]="fincaSeleccionada"></app-fincas>
+                </div>    
+                <div *ngSwitchCase="'perfil'">
+                    <app-perfil/>
+                </div>
+                <div *ngSwitchDefault>
+                    <app-noticias/>
+                </div>
+                </ng-container>
+            </ng-container>
+        
+            <ng-template #soloNoticias>
+                <app-noticias/> 
+            </ng-template>
+        </div>
     </div>
+
 
     <div class="pie">
         <div class="texto-pie">

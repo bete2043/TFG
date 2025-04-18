@@ -1,0 +1,20 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body>
+    <div class="cuerpo">
+        <div class="noticias">
+            <div *ngFor="let anuncio of info; let i = index">
+                <div class="contenido1" *ngIf = "i % 2 === 0">
+                    <div class="texto1">{{anuncio.descripcion}}</div>
+                    <img class="imagen1" src = "{{anuncio.foto}}"/>
+                </div>
+
+                <div class="contenido2" *ngIf = "i % 2 !== 0">
+                    <img class="imagen2" src = "{{anuncio.foto}}"/>
+                    <div class="texto2">{{anuncio.descripcion}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>

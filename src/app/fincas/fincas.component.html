@@ -1,0 +1,48 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body>
+    <div class="cuerpo">
+        <button (click)="anterior()" class="boton-navegacion">Anterior</button>
+    
+        <div class="contenedor-carrusel">
+            <div class="fichas" [style.transform]="'rotateY(' + (-indiceActual * (360 / info.length)) + 'deg)'">
+                <div class="ficha" *ngFor="let finca of info; let i = index"
+                    [style.transform]="'rotateY(' + (i * (360 / info.length)) + 'deg) translateZ(' + getRadio() + 'rem)'">
+
+                    
+                    <div class="nombre">{{ finca.nombre }}</div>
+
+                    <div class="contenido-central">
+                        <div class="imagen">
+                        </div> 
+                    </div>
+                    <div class="boton-alineado">
+                        <div class="pares">
+                            <div class="casillas">Superficie:</div>
+                            <div class="bd">{{ finca.superficie }} hectáreas</div>
+                        </div>
+
+                        <button class="boton" (click)="openPanel(finca)">Gestión de Actividades</button>
+
+                        <div class="pares">
+                            <div class="casillas">Olivos:</div>
+                            <div class="bd">{{ finca.olivos }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <button (click)="siguiente()" class="boton-navegacion">Siguiente</button>
+
+        <div class="panel-lateral" *ngIf="panelAbierto">
+            <h3>Actividades para {{ fincaSeleccionada.nombre }}</h3>
+            <button>Riego</button>
+            <button>Poda</button>
+            <button>Recolección</button>
+            <button (click)="cerrarPanel()">Cerrar</button>
+        </div>
+
+    </div>
+</body>

@@ -3,11 +3,14 @@ import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { PerfilComponent } from "../perfil/perfil.component";
+import { NoticiasComponent } from "../noticias/noticias.component";
+import { FincasComponent } from "../fincas/fincas.component";
 
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, PerfilComponent, NoticiasComponent, FincasComponent],
   templateUrl: './inicio.component.html',
   styleUrls: ['./inicio.component.css']
 })
@@ -30,12 +33,16 @@ export class InicioComponent {
   }
   
   ngOnInit() {
+    // Obtener el usuario almacenado en localStorage
     this.usuarioAutenticado = localStorage.getItem('usuario');
-    console.log('Usuario recuperado de localStorage: ', this.usuarioAutenticado);  
+    console.log('Usuario recuperado de localStorage: ', this.usuarioAutenticado); 
     
-    this.http.get<any[]>('http://localhost:5000/').subscribe(
+    this.http.get<any[]>(`http://localhost:5000/fincas/${this.usuarioAutenticado}`).subscribe(
       (response) => {
         this.info = response;
+        this.info.forEach((finca, index) => {
+        });
+
       },
       (error) => {
         console.error('Error al obtener los datos', error);       
@@ -55,8 +62,27 @@ export class InicioComponent {
     this.cdRef.detectChanges();
   }
 
+  fincasAbierto = false;
+
+  toggleFincas(estado: boolean) {
+    this.fincasAbierto = estado;
+  }
+  
+  fincaSeleccionada: any = null;
+  seleccionarFinca(finca: any) {
+    localStorage.setItem('fincaSeleccionada', JSON.stringify(finca));
+    this.fincaSeleccionada = finca;  
+    this.mostrarContenido('fincas');
+  }
+  
+
+
   perfil() {
     this.router.navigate(['/perfil']); 
+  }
+
+  fincas(){
+    this.router.navigate(['fincas'])
   }
 
   toggleMenu(event: Event) {
@@ -82,5 +108,10 @@ export class InicioComponent {
     return this.currentRoute.includes(route);
   }
 
+  seccionActual = '';
+
+  mostrarContenido(seccion: string) {
+    this.seccionActual = seccion;
+  }
 
 }

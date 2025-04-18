@@ -61,8 +61,8 @@
                             <div class="bd">{{ finca.olivos }}</div>
                         </div>
                         <div class="pares">
-                            <div class="casillas">Última recolección:</div>
-                            <div class="bd">{{ finca.ultima_recoleccion }}</div>
+                            <div class="casillas">Última plaga:</div>
+                            <div class="bd">{{ finca.ultima_plaga }}</div>
                         </div>
                     </div>
                     <button class="boton" (click)="abrirModalYVerHistorial(finca)" >Obtener Info</button>
@@ -77,29 +77,38 @@
     <div class="modal" *ngIf="modalAbierto">
         <div class="modal-contenido">
             <div class="modal-header">
-                <h2>Detalles de la Recolección de {{this.riegoSeleccionado.nombre}}</h2>
+                <h2>Detalles de Plagas de {{this.riegoSeleccionado.nombre}}</h2>
                 <button class="cerrar-modal" (click)="cerrarModalyHisotrial()">✖</button>
             </div>
             <form (ngSubmit)="enviarDatos(f)" #f="ngForm">
                 <div class="modal-body">
                     <div class="metodo">
-                        <p><strong>Tipo de aceituna:</strong></p>
-                        <select [(ngModel)]="tipoaceituna" name="tipoaceituna" required class="menu-metodo">
+                        <p><strong>Tipo de plaga:</strong></p>
+                        <select [(ngModel)]="tipoplaga" name="tipoplaga" required class="menu-metodo">
                             <option value="" disabled selected hidden>Elige una opción</option>
-                            <option value="picual">Picual</option>
-                            <option value="arbequina">Arbequina</option>
-                            <option value="hojiblanca">Hojiblanca</option>
+                            <option value="mosca">Mosca del olivo</option>
+                            <option value="polilla">Polilla del olivo</option>
+                            <option value="cochinilla">Cochinilla del olivo</option>
                         </select>
                     </div>
             
+                    <div class="metodo">
+                        <p><strong>Grado de afectación:</strong></p>
+                        <select [(ngModel)]="gradoafectacion" name="gradoafectacion" required class="menu-metodo">
+                            <option value="" disabled selected hidden>Elige una opción</option>
+                            <option value="leve">Leve</option>
+                            <option value="media">Media</option>
+                            <option value="severa">Severa</option>
+                        </select>
+                    </div>
                     <div class="cantidad">
-                        <p><strong>Cantidad: </strong></p>
-                        <input id="cantidad" [(ngModel)]="cantidad" type="number" name="cantidad" placeholder="Introduce la cantidad de kilos cosechados" required />
+                        <p><strong>Olivas afectadas: </strong></p>
+                        <input id="olivas" [(ngModel)]="olivas" type="number" name="olivas" placeholder="Introduce las olivas afectadas" required>
                     </div>
 
                     <div class="cantidad">
-                        <p><strong>Olivas recolectadas: </strong></p>
-                        <input id="olivas" [(ngModel)]="olivas" type="number" name="olivas" placeholder="Introduce las olivas cosechadas" required>
+                        <p><strong>Tratamiento aplicado: </strong></p>
+                        <input id="tratamiento" [(ngModel)]="tratamiento" type="text" name="tratamiento" placeholder="Introduce el tratamiento aplicado" required />
                     </div>
             
                     <div class="fecha">
@@ -113,7 +122,7 @@
             </form>
             
             <div class="historial-modal" *ngIf="historialVisible.length > 0">
-                <h3>Historial de Recolección</h3>
+                <h3>Historial de Plagas</h3>
             
                 <div class="menu-anios">
                     <label for="seleccionar-anio">Seleccionar Año:</label>
@@ -131,17 +140,19 @@
                                 <thead>
                                     <tr>
                                         <th>Fecha</th>
-                                        <th>Número de olivas</th>
-                                        <th>Tipo</th>
-                                        <th>Cantidad (Kg)</th>
+                                        <th>Número de olivas afectadas</th>
+                                        <th>Tipo plaga</th>
+                                        <th>Grado de afectación</th>
+                                        <th>Tratamiento</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let recoleccion of historialPorAnio[anioSeleccionado]">
-                                        <td>{{ formatearFecha(recoleccion.fecha) }}</td>
-                                        <td>{{ recoleccion.olivas }}</td>
-                                        <td>{{ recoleccion.metodo }}</td>
-                                        <td>{{ recoleccion.cantidad }} G</td>
+                                    <tr *ngFor="let plaga of historialPorAnio[anioSeleccionado]">
+                                        <td>{{ formatearFecha(plaga.fecha) }}</td>
+                                        <td>{{ plaga.olivas }}</td>
+                                        <td>{{ plaga.metodo }}</td>
+                                        <td>{{ plaga.afectacion }}</td>
+                                        <td>{{ plaga.tratamiento }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -151,15 +162,13 @@
                         <div *ngIf="resumenHistorialExpandido[anioSeleccionado]" class="resumen">
                             <h4>Resumen del Año {{ anioSeleccionado }}</h4>
                             <ul>
-                                <li><strong>Número de oliva picual:</strong> {{ resumenHistorialExpandido[anioSeleccionado].picual }}</li>
-                                <li><strong>Número de oliva arbequina:</strong> {{ resumenHistorialExpandido[anioSeleccionado].arbequina }}</li>
-                                <li><strong>Número de oliva hojiblanca:</strong> {{ resumenHistorialExpandido[anioSeleccionado].hojiblanca }}</li>
-                                <li><strong>Número de olivas totales:</strong> {{ resumenHistorialExpandido[anioSeleccionado].total }}</li>
-                                <li><strong>Kilogramos de picual:</strong> {{ resumenHistorialExpandido[anioSeleccionado].kgpicual }} Kg</li>
-                                <li><strong>Kilogramos de arbequina:</strong> {{ resumenHistorialExpandido[anioSeleccionado].kgarbequina }} Kg</li>
-                                <li><strong>Kilogramos de hojiblanca:</strong> {{ resumenHistorialExpandido[anioSeleccionado].kghojiblanca }} Kg</li>
-                                <li><strong>Kilogramos totales:</strong> {{ resumenHistorialExpandido[anioSeleccionado].kgTotales }} Kg</li>
-                                <li><strong>Kilogramos medios por oliva:</strong> {{ resumenHistorialExpandido[anioSeleccionado].mediaOlivas }} Kg/oliva</li>
+                                <li><strong>Número de olivas con mosca:</strong> {{ resumenHistorialExpandido[anioSeleccionado].mosca }}</li>
+                                <li><strong>Número de olivas con polilla:</strong> {{ resumenHistorialExpandido[anioSeleccionado].polilla }}</li>
+                                <li><strong>Número de olivas con cochinilla:</strong> {{ resumenHistorialExpandido[anioSeleccionado].cochinilla }}</li>
+                                <li><strong>Número de olivas afectadas totales:</strong> {{ resumenHistorialExpandido[anioSeleccionado].total }}</li>
+                                <li><strong>Número de olivas recuperadas:</strong> {{ resumenHistorialExpandido[anioSeleccionado].salvadas }} </li>
+                                <li><strong>Número de olivas perdidas:</strong> {{ resumenHistorialExpandido[anioSeleccionado].severa }} </li>
+
                             </ul>
                         </div>
                     </div>
