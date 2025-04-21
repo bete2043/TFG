@@ -2,8 +2,8 @@
     display: flex;
     flex-direction: row;
     flex: 1;
-    margin-top: 16vh; 
-    min-height: calc(100vh - 36vh); 
+    margin-top: 10vh; 
+    min-height: 40vh; 
 }
 
 .barra-lateral {
@@ -33,6 +33,7 @@
 .menu-items-superiores {
     display: flex;
     flex-direction: column;
+    position: fixed;
 }
 
 .item-menus {
@@ -50,7 +51,7 @@
     transition: all 0.3s ease;
 }
 .item-menu {
-    background-color: transparent; /* transparente para que se vea el fondo de la barra */
+    background-color: transparent; 
     color: #ffffff;
     font-size: 1.6rem;
     padding: 1.2rem;
@@ -68,60 +69,88 @@
     transform: scale(1.05);
 }
 
-.cerrar-sesion {
-    position: sticky;
-    bottom: 1rem;
-    z-index: 1;
-    background-color: #A4B465;
-    color: white;
-    font-size: 1.6rem;
-    padding: 1rem 1.2rem;
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    font-family: 'Times New Roman', Times, serif;
-    transition: all 0.3s ease;
-}
-
-.cerrar-sesion:hover {
-    color: #000;
-}
 
 .desplegable {
     position: relative;
     width: 100%;
-  }
-  
-  .flecha {
+}
+
+.flecha {
     float: right;
+    transform: rotate(270deg);
     transition: transform 0.3s ease;
-  }
-  
-  .flecha.abierta {
-    transform: rotate(180deg);
-  }
-  
-  .submenu-fincas {
-    background-color: #A4B465;
+}
+
+.flecha.abierta {
+    transform: rotate(90deg);
+}
+
+/* Color y fondo cuando está activo */
+.item-menu.activo, .item-menu.desplegable.activo {
+    color: #000;
+    font-weight: bold;
+}
+
+/* Hacemos que también cambie el color del botón hijo */
+.item-menu.desplegable.activo .item-menus {
+    color: #000;
+    font-weight: bold;
+}
+
+
+.submenu-fincas {
+    position: absolute;
+    top: 0;
+    left: 100%; /* coloca el menú a la derecha del padre */
+    background-color: #b6c479;
     display: flex;
     flex-direction: column;
-    padding-left: 1rem;
-  }
-  
-  .item-submenu {
+    padding: 0.5rem 0;
+    min-width: 14rem;
+    max-height: 14rem;
+    overflow-y: auto;
+    overflow-x: hidden; 
+    z-index: 100;
+    border-left: 1px solid #ffffff50;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6); /* sombra ligera para destacar */
+}
+
+/* Scrollbar bonito para navegadores Webkit */
+.submenu-fincas::-webkit-scrollbar {
+    width: 6px;
+}
+
+.submenu-fincas::-webkit-scrollbar-track {
+    background: #b6c479;
+}
+
+.submenu-fincas::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 3px;
+}
+
+/* Para navegadores con scrollbar estándar */
+.submenu-fincas {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #afafaf;
+}
+
+
+
+.item-submenu {
     background: none;
     color: #fff;
     border: none;
     text-align: left;
-    padding: 0.8rem 1.2rem;
+    padding: 0.8rem 1rem;
     font-size: 1.4rem;
-    border-bottom: 1px solid #ffffff50; /* línea divisoria blanca semitransparente */
+    border-bottom: 1px solid #ffffff50;
     cursor: pointer;
-  }
-  
-  .item-submenu:hover {
+}
+
+.item-submenu:hover {
     color: #000;
-    font-size: 1.7rem; /* texto ligeramente más grande */
+    font-size: 1.7rem;
     transform: scale(1.05);
 }
 

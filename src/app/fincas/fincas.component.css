@@ -1,7 +1,8 @@
 
 .contenedor-carrusel {
+    margin-top: 5rem;
     overflow: hidden; 
-    width: 80rem;
+    width: 70rem;
     height: 850px;
 }
 .cuerpo{
@@ -10,25 +11,73 @@
     justify-content: center;
     align-items: center;
     margin: auto;
+    width: 100%;
+    height: 100%;
+    min-height: 100vh; 
     gap: 3rem;
     overflow-x: hidden;
-    padding: 2rem;
-    padding-top: 5rem;
-    /* background-image: url('/image.png');
+    background-image: url('/image.png');
     background-size: cover; 
-    background-position:center; */
+    background-position:center;
 }
 .panel-lateral {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 400px;
-    background: #f5f5f5;
-    padding: 20px;
+    position: relative;
+    width: 0;
     height: 100%;
-    box-shadow: -2px 0 5px rgba(0,0,0,0.3);
-    z-index: 1001;
-} 
+    min-height: 100vh; 
+    overflow: hidden;
+    background-color: #A4B465;
+    transition: width 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+.panel-lateral.abierto {
+    width: 25rem;
+}
+
+.panel-lateral h3 {
+    color: rgb(0, 0, 0);
+    font-family: 'Times New Roman', Times, serif;
+    text-align:center ;
+    margin-top: 3rem;
+}
+
+
+.item-menu {
+    background-color: transparent;
+    color: white;
+    font-size: 1.6rem;
+    padding: 1rem;
+    border: none;
+    border-bottom: 1px solid #ffffff50;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Times New Roman', Times, serif;
+    transition: all 0.3s ease;
+}
+
+.item-menu:hover {
+    color: black;
+    transform: scale(1.05);
+}
+
+.cerrar-icono {
+    position: absolute;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 10;
+    transition: color 0.3s ease;
+}
+
+.cerrar-icono:hover {
+    color: black;
+}
 .fichas {
     display: flex;
     transition: transform 1s ease-in-out; 
@@ -46,7 +95,6 @@
     justify-content: space-between;
     position: absolute;
     backface-visibility: hidden;
-    margin-left: 2.1rem;
 }
 
 .nombre{
@@ -122,7 +170,7 @@
 }
 
 .boton{
-    background-color: #FFCF50;
+    background-color: #d4af37;
     width: 35%;
     height: 3.5rem;
     border-radius: 1.25rem;
@@ -143,17 +191,17 @@
     background-color: #e9c050;
 }
 .boton-navegacion {
-    background-color: #555;
-    color: white;
-    padding: 1rem;
-    border-radius: 1.25rem;
-    margin: auto;
-    font-size: 1.5rem;
-    height: 5rem;
+    background-color: transparent;
+    color: rgb(0, 0, 0);
     border: none;
+    font-size: 6.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50%;
     cursor: pointer;
+    margin: 1rem;
+    transition: background-color 0.3s ease;
 }
 
 .boton-navegacion:hover {
-    background-color: #777;
+    transform: scale(1.3);
 }

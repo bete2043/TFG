@@ -122,12 +122,14 @@ ngOnChanges(changes: SimpleChanges) {
   openPanel(finca: any) {
     this.fincaSeleccionada = finca;
     this.panelAbierto = true;
+    document.querySelector('.contenido-central')?.classList.add('panel-abierto');
     console.log('Finca seleccionada:', finca);
   }
   
   cerrarPanel() {
     this.fincaSeleccionada = null;
     this.panelAbierto = false;
+    document.querySelector('.contenido-central')?.classList.remove('panel-abierto');
   }
   
   

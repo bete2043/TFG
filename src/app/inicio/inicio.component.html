@@ -25,26 +25,42 @@
         <div class="barra-lateral" *ngIf="usuarioAutenticado">
             <div class="menu-lateral">
                 <div class="menu-items-superiores">
-                    <div class="item-menu desplegable" (mouseenter)="toggleFincas(true)" 
-                    (mouseleave)="toggleFincas(false)">
-                        <button class="item-menus" (click)="mostrarContenido('fincas')" >
+                    <div class="item-menu desplegable" 
+                        [class.activo]="seccionActual === 'fincas'" 
+                        (mouseenter)="toggleFincas(true)" 
+                        (mouseleave)="toggleFincas(false)">
+                        <button class="item-menus" (click)="mostrarContenido('fincas')">
                             Fincas
-                        <span class="flecha" [class.abierta]="fincasAbierto">▼</span>
+                            <span class="flecha" [class.abierta]="fincasAbierto">▼</span>
                         </button>
                         <div class="submenu-fincas" *ngIf="fincasAbierto">
-                        <button
-                            class="item-submenu" *ngFor="let finca of info; let i = index"
-                            (click)="seleccionarFinca(finca)"
-                        >
-                            {{ finca.nombre }}
-                        </button>
+                            <button
+                                class="item-submenu" 
+                                *ngFor="let finca of info; let i = index"
+                                (click)="seleccionarFinca(finca)">
+                                {{ finca.nombre }}
+                            </button>
                         </div>
                     </div>
-                                        <button class="item-menu" (click)="mostrarContenido('perfil')">Perfil</button>
-                    <button class="item-menu" (click)="mostrarContenido('noticias')">Noticias</button>
-                    <button class="item-menu" (click)="mostrarContenido('noticias')">Balance</button>
+
+                    <button class="item-menu" 
+                            [class.activo]="seccionActual === 'perfil'" 
+                            (click)="mostrarContenido('perfil')">Perfil</button>
+
+                    <button class="item-menu" 
+                            [class.activo]="seccionActual === 'noticias'" 
+                            (click)="mostrarContenido('noticias')">Noticias</button>
+
+                    <button class="item-menu" 
+                            [class.activo]="seccionActual === 'balance'" 
+                            (click)="mostrarContenido('balance')">Balance</button>
+                    <button class="item-menu" 
+                            [class.activo]="seccionActual === 'mapa'" 
+                            (click)="mostrarContenido('mapa')">Mapa</button>
+
+                    <button class="item-menu" (click)="cerrarSesion()">Cerrar sesión</button>
+
                 </div>
-                <button class="item-menu cerrar-sesion" (click)="cerrarSesion()">Cerrar sesión</button>
             </div>
         </div>
         

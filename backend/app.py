@@ -22,6 +22,57 @@ recoleccion = mongo.db.recoleccion
 poda = mongo.db.poda
 plagas = mongo.db.plagas
 
+# Obtener todos los datos del usuario por username
+@app.route('/perfil/<username>', methods=['GET'])
+def obtener_perfil(username):
+    user = users.find_one({'username': username}, {'password': 0})  # No enviamos la contraseña
+    if not user:
+        return jsonify({'error': 'Usuario no encontrado'}), 404
+    user['_id'] = str(user['_id'])
+    return jsonify(user)
+
+# Modificar un campo específico del usuario
+@app.route('/perfil/<username>/modificar', methods=['PUT'])
+def modificar_dato_usuario(username):
+    data = request.json
+    campo = data.get('campo')
+    nuevo_valor = data.get('valor')
+
+    if campo not in ['username', 'member', 'email']:
+        return jsonify({'error': 'Campo no permitido'}), 400
+
+    if campo == 'username' and users.find_one({'username': nuevo_valor}):
+        return jsonify({'error': 'Este nombre de usuario ya existe'}), 400
+    if campo == 'member' and users.find_one({'member': nuevo_valor}):
+        return jsonify({'error': 'Este número de socio ya existe'}), 400
+
+    result = users.update_one({'username': username}, {'$set': {campo: nuevo_valor}})
+    if result.modified_count > 0:
+        return jsonify({'message': f'{campo} actualizado correctamente'}), 200
+    else:
+        return jsonify({'message': 'No se realizaron cambios'}), 200
+
+@app.route('/perfil/<username>/cambiar-contrasena', methods=['POST'])
+def cambiar_contrasena(username):
+    data = request.json
+    actual = data.get('actual')
+    nueva = data.get('nueva')
+
+    user = users.find_one({'username': username})
+    if not user:
+        return jsonify({'error': 'Usuario no encontrado'}), 404
+    
+    if actual == nueva:
+        return jsonify({'error': 'Utilice una contraseña distinta'}), 200
+
+    if user['password'] != actual:
+        return jsonify({'error': 'Contraseña incorrecta'}), 200
+
+    
+
+    users.update_one({'username': username}, {'$set': {'password': nueva}})
+    return jsonify({'ok': 'Contraseña cambiada correctamente'}), 200
+
 
 # Ruta para registrar un usuario
 @app.route('/crear_cuenta', methods=['POST'])

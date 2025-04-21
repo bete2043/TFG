@@ -27,7 +27,7 @@ body.zoom {
     font-size: 1.2vw;
     /* Tamaño de la barra y color de fondo*/
     width: 100%;
-    height: 16vh;
+    height: 10vh;
     background-color: rgba(98, 111, 71, 1);
     position: fixed;
     top: 0;
@@ -76,8 +76,8 @@ body.zoom {
 }
 
 .usuario-avatar {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     background-color: #d8b998;
     color:#470314;
     font-size: 2rem;
@@ -159,10 +159,10 @@ body.zoom {
 }
 .logo-app{
     /*Tamaño del logo*/
-    width: 12vw;
-    height: 12vw;
-    max-width: 100px;
-    max-height: 100px;
+    width: 9vw;
+    height: 9vw;
+    max-width: 70px;
+    max-height: 70px;
     border-radius: 50%;
     /* Colocación de la imagen del logo */
     background-image: url('/logo.png');
@@ -170,9 +170,9 @@ body.zoom {
 }
 .foto-app{
     /*Tamaño de la foto de la app*/
-    height: 20vh;
-    width: 20vh;
-    margin-top: 11vh;
+    height: 16vh;
+    width: 16vh;
+    margin-top: 8vh;
     border-radius:50%;
     /* Colocación de la imagen de la foto de la app */
     background-image: url('/foto-app.png');
@@ -182,14 +182,11 @@ body.zoom {
     /* Tamaño del botón de login*/
     height: 3vw;
     width: 3vw;
-    margin-right: 1rem;
     max-height: 50px;
     max-width: 50px;
     /* Colocación de la imagen de login */
     background-image: url('/login.png');
     /* Colocación del botón*/
-    margin-bottom: 1.5vh;
-    margin-top: auto;
     /* Customización del botón */
     border: none;
     background-color: transparent;
@@ -199,7 +196,7 @@ body.zoom {
 .login:hover{
     transform: scale(1.1);
 }
-.cuerpo{
+/* .cuerpo{
     width: 100%;
     margin: auto;
     flex: 1;
@@ -211,7 +208,7 @@ body.zoom {
     display: flex;
     flex-direction: row;
     align-items: stretch;
-}
+} */
 .pie{
     display: flex;
     justify-content: space-around;
@@ -219,11 +216,12 @@ body.zoom {
     width: 100%;
     margin: auto;
     flex-wrap: wrap;
+    position: relative;
     background-color: #352d27;
     color: white;
     padding: 2vh 3vw;
     font-size: 1.3vw;
-    z-index: 1000;
+    z-index: 10;
 }
 .texto-pie{
     /* Tamaño del cuadro de texto */

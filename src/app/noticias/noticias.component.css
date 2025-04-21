@@ -7,7 +7,17 @@
     margin-top: 4rem;
 }
 .cuerpo{
-    padding-top: 3rem;
+    width: 100%;
+    margin: auto;
+    padding: 3rem;
+    flex: 1;
+    box-sizing: border-box;
+    background-image: url('/image.png');
+    background-size: cover; 
+    background-position:center;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
 }
 .contenido2, .contenido1{
     /*Alinear elementos en el contenido*/

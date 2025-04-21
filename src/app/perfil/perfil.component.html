@@ -2,7 +2,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 </head>
 <body>
-    <div class="cuerpo">
-        hola
+    <div class="perfil-container">
+        <h1 class="titulo">Perfil</h1>
+    
+        <!-- Nombre -->
+        <div class="informacion">
+            <div class="t-info">Nombre:</div>
+            <div class="tbd-info">{{ perfil.username }}</div>
+            <button class="edit-button" (click)="editNombre = !editNombre">Editar</button>
+        </div>
+        <div *ngIf="editNombre" class="edit-input">
+            <label>Nuevo nombre:</label>
+            <input [(ngModel)]="nuevoNombre" placeholder="Nuevo nombre" />
+            <button class="save-button" (click)="guardarCampo('username', nuevoNombre)">Guardar</button>
+        </div>
+    
+        <!-- Email -->
+        <div class="informacion">
+            <div class="t-info">Email:</div>
+            <div class="tbd-info">{{ perfil.email }}</div>
+            <button class="edit-button" (click)="editEmail = !editEmail">Editar</button>
+        </div>
+        <div *ngIf="editEmail" class="edit-input">
+            <label>Nuevo email:</label>
+            <input [(ngModel)]="nuevoEmail" placeholder="Nuevo email" />
+            <button class="save-button" (click)="guardarCampo('email', nuevoEmail)">Guardar</button>
+        </div>
+
+        <div class="informacion">
+            <div class="t-info">Numero de socio:</div>
+            <div class="tbd-info">{{ perfil.member }}</div>
+        </div>
+    
+
+        <div class="edit-input">
+            <label>Contraseña actual:</label>
+            <input type="password" [(ngModel)]="passwordActual" placeholder="Contraseña actual" />
+            
+            <label>Nueva contraseña:</label>
+            <input type="password" [(ngModel)]="passwordNueva" placeholder="Nueva contraseña" />
+        
+            <button class="save-button" (click)="cambiarContrasena()">Guardar</button>
+        
+          <p *ngIf="errorPassword" class="error-message">{{ errorPassword }}</p>
+        </div>
     </div>
 </body>

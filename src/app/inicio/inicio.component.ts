@@ -19,6 +19,7 @@ export class InicioComponent {
   usuarioAutenticado: string | null = null;
   currentRoute: string = '';
   menuAbierto: boolean = false;
+  
   info: any[] = [];
 
   constructor(private http: HttpClient, private router: Router, private cdRef: ChangeDetectorRef) {
@@ -42,7 +43,7 @@ export class InicioComponent {
         this.info = response;
         this.info.forEach((finca, index) => {
         });
-
+        this.seccionActual = 'noticias';
       },
       (error) => {
         console.error('Error al obtener los datos', error);       

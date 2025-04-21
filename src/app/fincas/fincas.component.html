@@ -3,7 +3,7 @@
 </head>
 <body>
     <div class="cuerpo">
-        <button (click)="anterior()" class="boton-navegacion">Anterior</button>
+        <button (click)="anterior()" class="boton-navegacion">‹</button>
     
         <div class="contenedor-carrusel">
             <div class="fichas" [style.transform]="'rotateY(' + (-indiceActual * (360 / info.length)) + 'deg)'">
@@ -34,15 +34,18 @@
             </div>
         </div>
     
-        <button (click)="siguiente()" class="boton-navegacion">Siguiente</button>
+        <button (click)="siguiente()" class="boton-navegacion">›</button>
 
-        <div class="panel-lateral" *ngIf="panelAbierto">
-            <h3>Actividades para {{ fincaSeleccionada.nombre }}</h3>
-            <button>Riego</button>
-            <button>Poda</button>
-            <button>Recolección</button>
-            <button (click)="cerrarPanel()">Cerrar</button>
+        <div class="panel-lateral" [class.abierto]="panelAbierto">
+            <h3>Actividades "{{ fincaSeleccionada.nombre }}" </h3>
+            <button class="item-menu">Abonado</button>
+            <button class="item-menu">Fitosanitarios</button>
+            <button class="item-menu">Plagas</button>
+            <button class="item-menu">Poda</button>
+            <button class="item-menu">Recolección</button>
+            <button class="item-menu">Riego</button>
+
+            <button class="cerrar-icono" *ngIf="panelAbierto" (click)="cerrarPanel()">✕</button>
         </div>
-
     </div>
 </body>
