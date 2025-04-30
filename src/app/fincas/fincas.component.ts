@@ -5,13 +5,16 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
 import { Input, OnChanges, SimpleChanges } from '@angular/core';
+import { PlagasComponent } from "../plagas/plagas.component";
+import { AbonadoComponent } from "../abonado/abonado.component";
+import { FitosanitariosComponent } from "../fitosanitarios/fitosanitarios.component";
 
 
 
 @Component({
   selector: 'app-fincas',
   standalone: true,
-  imports: [RouterModule, CommonModule, FormsModule],
+  imports: [RouterModule, CommonModule, FormsModule, PlagasComponent, AbonadoComponent, FitosanitariosComponent],
   templateUrl: './fincas.component.html',
   styleUrl: './fincas.component.css'
 })
@@ -21,22 +24,371 @@ export class FincasComponent implements OnChanges{
   menuAbierto: boolean = false;
   info: any[] = [];
   indiceActual: number = 0;
-  modalAbierto: boolean = false; 
   riegoSeleccionado: any = null;
   tipopoda: string = '';
   olivas: number | null = null;
-  fechaSeleccionada: string | null = null;  
   fechaActual: string = '';  
-  historialVisible: any[] = [];
   resumenHistorial: { diasLluvia: number; diasRiego: number; litrosLluvia: number; litrosRiego: number; litrosTotales: number; } | undefined;
   resumenHistorialPorAnio: any = {};
   historialPorAnio: { [anio: string]: any[] } = {};  
-  resumenHistorialExpandido: { [anio: string]: any } = {};
-  anioExpandido: { [anio: string]: boolean } = {};
-  anioSeleccionado: string | null = null;
   historialAnios: string[] = [];
   panelAbierto: boolean = false;
   fincaSeleccionada: any = null;
+
+
+  anioExpandido: { [anio: string]: boolean } = {};
+
+  /* ABONADO */
+
+  metodoAbonado: string = '';
+  cantidad: number | null = null;
+  nombreAbono: string | null = null;
+  modalAbiertoAbonado: boolean = false; 
+  anioSeleccionadoAbonado: string | null = null;
+  resumenHistorialExpandidoAbonado: { [anio: string]: any } = {};
+  historialVisibleAbonado: any[] = [];
+  fechaSeleccionada: string | null = null;  
+
+
+  abrirModalAbonado(riego: any) {
+    this.modalAbiertoAbonado = true;
+    this.riegoSeleccionado = riego;
+    console.log('Riego seleccionado:', riego);
+  }
+
+  enviarDatosAboando(form: NgForm) {
+    const datos = {
+      metodoAbonado: form.value.metodoAbonado,
+      cantidad: form.value.cantidad,
+      nombreAbono: form.value.nombreAbono,
+      fecha: form.value.fechaSeleccionada,
+      riegoSeleccionado: this.riegoSeleccionado.nombre
+    };
+
+    this.http.post(`http://localhost:5000/abonado`, datos).subscribe(
+      (response) => {
+        console.log('Datos enviados con éxito:', response);
+/*         alert('Datos guardados correctamente.');
+ */
+        form.reset(); 
+        this.metodoAbonado = ''; 
+        this.nombreAbono = ''; 
+        this.cantidad = null;
+        this.fechaSeleccionada = null;
+        this.cerrarModal('abonado');
+      },
+      (error) => {
+        console.error('Error al enviar los datos:', error);
+/*         alert('Hubo un error al guardar los datos.');
+ */      }
+    );
+  }
+
+  verHistorialAbonado(nombreFinca: string) {
+    if (!nombreFinca) {
+      console.error('El nombre de la finca es inválido');
+/*       alert('Nombre de finca no válido');
+ */      return;
+    }
+
+    this.http.get<any[]>(`http://localhost:5000/abonado/${nombreFinca}`).subscribe(
+      (response) => {
+        this.historialVisibleAbonado = response.sort((a, b) => {
+          const fechaA = new Date(a.fecha).getTime();
+          const fechaB = new Date(b.fecha).getTime();
+          return fechaB - fechaA; 
+        });
+        
+        this.historialPorAnio = this.agruparHistorialPorAnio(this.historialVisibleAbonado);
+        console.log('Datos agrupados por año:', this.historialPorAnio);
+        console.log('Historial visible:', this.historialVisibleAbonado);
+        console.log('Años detectados:', Object.keys(this.historialPorAnio));
+        this.historialPorAnio = this.agruparHistorialPorAnio(this.historialVisibleAbonado);
+        this.agruparPorAnio();
+  },
+      (error) => {
+        console.error('Error al obtener el historial', error);
+/*         alert('No se pudo obtener el historial');
+ */      }
+    );
+  }
+
+  cargarHistorialAnio() {
+    if (this.anioSeleccionadoAbonado) {
+      this.toggleAnioExpandidoAbonado(this.anioSeleccionadoAbonado);
+      console.log('Año seleccionado:', this.anioSeleccionadoAbonado); 
+    }
+  }   
+
+  toggleAnioExpandidoAbonado(anio: string): void {
+    this.anioExpandido[anio] = !this.anioExpandido[anio];
+
+    // Calcular resumen solo si aún no ha sido generado
+      const datos = this.historialPorAnio[anio];
+
+      const vecesQuimico = datos.filter((r) => r.metodo === 'quimico').length;
+      const vecesOrganico = datos.filter((r) => r.metodo !== 'quimico').length;
+      const gramosQuimico = datos
+        .filter((r) => r.metodo === 'quimico')
+        .reduce((sum, r) => sum + r.cantidad, 0);
+      const gramosOrganico = datos
+        .filter((r) => r.metodo !== 'quimico')
+        .reduce((sum, r) => sum + r.cantidad, 0);
+
+      this.resumenHistorialExpandidoAbonado[anio] = {
+        vecesQuimico,
+        vecesOrganico,
+        gramosQuimico,
+        gramosOrganico,
+        gramosTotales: gramosQuimico + gramosOrganico,
+      };
+  }  
+
+  agruparPorAnio() {
+    console.log('📌 Datos originales antes de agrupar:', this.historialVisibleAbonado);
+
+    this.historialPorAnio = this.historialVisibleAbonado.reduce((acumulador: any, riego: any) => {
+      const anio = new Date(riego.fecha).getFullYear();
+      if (!acumulador[anio]) {
+        acumulador[anio] = [];
+      }
+      acumulador[anio].push(riego);
+      return acumulador;
+    }, {});
+
+    console.log('📌 Historial agrupado por año:', this.historialPorAnio);
+
+    this.extraerAnios(); // Asegurar que se llama solo después de agrupar
+  }
+
+  extraerAnios() {
+    if (!this.historialPorAnio || Object.keys(this.historialPorAnio).length === 0) {
+      console.warn(' No hay datos en historialPorAnio'); 
+      return;
+    }
+  
+    // Extrae las claves (años) y ordénalos de mayor a menor
+    this.historialAnios = Object.keys(this.historialPorAnio)
+      .filter(anio => !isNaN(Number(anio)))  // Filtrar valores incorrectos
+      .sort((a, b) => Number(b) - Number(a));
+  
+    console.log('✅ Años extraídos correctamente:', this.historialAnios);
+  }
+
+
+
+  /* ------------------------------------------------------------------------------------- */
+
+
+
+  /* FITOSANITARIO */
+
+  metodoFitosanitario: string = '';
+  tipofitosaniraio: string = '';
+  nombreFitosanitario: string = '';
+  cantidadFitosanitario: number | null = null;
+  fechaSeleccionadaFitosaniario: string | null = null;
+  modalAbiertoFitosanitario: boolean = false; 
+  anioSeleccionadoFitosanitario: string | null = null;
+  resumenHistorialExpandidoFitosanitario: { [anio: string]: any } = {};
+  historialVisibleFitosanitario: any[] = [];
+  historialPorAnioFitosanitario: { [anio: string]: any[] } = {};  
+  historialAniosFitosanitarios: string[] = [];
+
+
+
+  abrirModalFitosanitario(riego: any) {
+    this.modalAbiertoFitosanitario = true;
+    this.riegoSeleccionado = riego;
+    console.log('Riego seleccionado:', riego);
+  }
+
+  enviarDatosFitosanitario(form: NgForm) {
+    const datos = {
+      tipofitosanitario: form.value.tipofitosaniraio,
+      cantidadFitosanitario: form.value.cantidadFitosanitario,
+      fechaSeleccionadaFitosaniario: form.value.fechaSeleccionadaFitosaniario,
+      nombreFitosanitario: form.value.nombreFitosanitario,
+      riegoSeleccionado: this.riegoSeleccionado.nombre
+    };
+
+    this.http.post(`http://localhost:5000/fitosanitarios`, datos).subscribe(
+      (response) => {
+        console.log('Datos enviados con éxito:', response);
+        alert('Datos guardados correctamente.');
+
+        form.reset(); 
+      this.tipofitosaniraio = ''; 
+      this.nombreFitosanitario = '';
+      this.cantidad = null;
+      this.fechaSeleccionada = null;
+      this.cerrarModal('fitosanitario');
+
+      },
+      (error) => {
+        console.error('Error al enviar los datos:', error);
+        alert('Hubo un error al guardar los datos.');
+      }
+    );
+  }
+
+  verHistorialFitosanitario(nombreFinca: string) {
+    if (!nombreFinca) {
+      console.error('El nombre de la finca es inválido');
+/*       alert('Nombre de finca no válido');
+ */      return;
+    }
+
+    this.http.get<any[]>(`http://localhost:5000/fitosanitario/${nombreFinca}`).subscribe(
+      (response) => {
+        this.historialVisibleFitosanitario = response.sort((a, b) => {
+          const fechaA = new Date(a.fecha).getTime();
+          const fechaB = new Date(b.fecha).getTime();
+          return fechaB - fechaA; 
+        });
+        
+        this.historialPorAnioFitosanitario = this.agruparHistorialPorAnio(this.historialVisibleFitosanitario);
+        console.log('Datos agrupados por año:', this.historialPorAnioFitosanitario);
+        console.log('Historial visible:', this.historialPorAnioFitosanitario);
+        console.log('Años detectados:', Object.keys(this.historialPorAnio));
+        this.historialPorAnioFitosanitario = this.agruparHistorialPorAnio(this.historialVisibleFitosanitario);
+        this.agruparPorAnio();
+  },
+      (error) => {
+        console.error('Error al obtener el historial', error);
+/*         alert('No se pudo obtener el historial');
+ */      }
+    );
+  }
+
+  cargarHistorialAnioFitosanitario() {
+    if (this.anioSeleccionadoFitosanitario) {
+      this.toggleAnioExpandidoFitosanitario(this.anioSeleccionadoFitosanitario);
+      console.log('Año seleccionado:', this.anioSeleccionadoFitosanitario); 
+    }
+  }   
+
+  toggleAnioExpandidoFitosanitario(anio: string): void {
+    this.anioExpandido[anio] = !this.anioExpandido[anio];
+
+    // Calcular resumen solo si aún no ha sido generado
+      const datos = this.historialPorAnio[anio];
+
+      const vecesQuimico = datos.filter((r) => r.metodo === 'quimico').length;
+      const vecesOrganico = datos.filter((r) => r.metodo !== 'quimico').length;
+      const gramosQuimico = datos
+        .filter((r) => r.metodo === 'quimico')
+        .reduce((sum, r) => sum + r.cantidad, 0);
+      const gramosOrganico = datos
+        .filter((r) => r.metodo !== 'quimico')
+        .reduce((sum, r) => sum + r.cantidad, 0);
+
+      this.resumenHistorialExpandidoFitosanitario[anio] = {
+        vecesQuimico,
+        vecesOrganico,
+        gramosQuimico,
+        gramosOrganico,
+        gramosTotales: gramosQuimico + gramosOrganico,
+      };
+  }  
+
+  agruparPorAnioFitosanitario() {
+    console.log('📌 Datos originales antes de agrupar:', this.historialVisibleFitosanitario);
+
+    this.historialPorAnioFitosanitario = this.historialVisibleFitosanitario.reduce((acumulador: any, riego: any) => {
+      const anio = new Date(riego.fecha).getFullYear();
+      if (!acumulador[anio]) {
+        acumulador[anio] = [];
+      }
+      acumulador[anio].push(riego);
+      return acumulador;
+    }, {});
+
+    console.log('📌 Historial agrupado por año:', this.historialPorAnioFitosanitario);
+
+    this.extraerAnios(); // Asegurar que se llama solo después de agrupar
+  }
+
+  /* ------------------------------------------------------------------------------------- */
+  
+  /* PLAGAS */
+
+  modalAbiertoPlagas: boolean = false; 
+
+
+  abrirModalPlagas(riego: any) {
+    this.modalAbiertoPlagas = true;
+    this.riegoSeleccionado = riego;
+    console.log('Riego seleccionado:', riego);
+  }
+
+/* ------------------------------------------------------------------------------------------ */
+
+
+  /* FUNCIONES COMUNES */
+  abrirModalYVerHistorial(riego: any, item: string) {
+      switch (item) {
+        case 'abonado':
+          this.abrirModalAbonado(riego);
+          this.verHistorialAbonado(riego.nombre);
+          break;
+        case 'fitosanitario':
+          this.abrirModalFitosanitario(riego);
+          this.verHistorialFitosanitario(riego.nombre);
+          break;
+        case 'plagas':
+          this.abrirModalPlagas(riego);
+/*           this.verHistorialFitosanitario(riego.nombre);
+ */          break;
+        default:
+          console.warn(`No se reconoce el tipo de item: ${item}`);
+          break;
+      }
+  }  
+
+  cerrarModal(item: string) {
+    switch (item) {
+      case 'abonado':
+        this.modalAbiertoAbonado = false;
+        this.riegoSeleccionado = null;
+        break;
+      case 'fitosanitario':
+        this.modalAbiertoFitosanitario = false;
+        break;
+      default:
+        console.warn(`No se reconoce el tipo de item: ${item}`);
+        break;
+    }
+  }
+/*   cerrarModalyHisotrial(item: string){
+    this.cerrarModal(item)
+    this.ocultarHistorial(item)
+  } */
+
+  ocultarHistorial(item : string) {
+    if(item === 'abonado'){
+      this.anioSeleccionadoAbonado = null;
+      this.resumenHistorialExpandidoAbonado = {}; 
+    }
+    if(item === 'fitosanitario'){
+      this.anioSeleccionadoFitosanitario = null;
+      this.resumenHistorialExpandidoFitosanitario = {}; 
+    }
+  }
+
+  /* ABRIR PANEL LATERAL */
+  openPanel(finca: any) {
+    this.fincaSeleccionada = finca;
+    this.panelAbierto = true;
+    document.querySelector('.contenido-central')?.classList.add('panel-abierto');
+    console.log('Finca seleccionada:', finca);
+  }
+  
+  cerrarPanel() {
+    this.fincaSeleccionada = null;
+    this.panelAbierto = false;
+    document.querySelector('.contenido-central')?.classList.remove('panel-abierto');
+  }
 
   @Input() finca: any;
 
@@ -51,8 +403,6 @@ ngOnChanges(changes: SimpleChanges) {
     }
   }
 }
-
-
   constructor(private http: HttpClient, private router: Router, private cdRef: ChangeDetectorRef) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -95,7 +445,6 @@ ngOnChanges(changes: SimpleChanges) {
       (response) => {
         this.info = response;
         this.info.forEach((finca, index) => {
-          this.obtenerUltimoPoda(finca.nombre, index);
         });
         this.agruparPorAnio();
         this.extraerAnios();
@@ -108,94 +457,6 @@ ngOnChanges(changes: SimpleChanges) {
     
   }
 
-  getRadio(): number {
-    const totalFincas = this.info.length;
-    if (totalFincas === 0) return 0;
-  
-    const tamañoFicha = 74;
-    const angulo = Math.PI / totalFincas;
-    return tamañoFicha / (2 * Math.tan(angulo));
-  }
-  
-  
-
-  openPanel(finca: any) {
-    this.fincaSeleccionada = finca;
-    this.panelAbierto = true;
-    document.querySelector('.contenido-central')?.classList.add('panel-abierto');
-    console.log('Finca seleccionada:', finca);
-  }
-  
-  cerrarPanel() {
-    this.fincaSeleccionada = null;
-    this.panelAbierto = false;
-    document.querySelector('.contenido-central')?.classList.remove('panel-abierto');
-  }
-  
-  
-  ocultarHistorial() {
-      this.anioSeleccionado = null;
-      this.resumenHistorialExpandido = {}; 
-  }
-  agruparPorAnio() {
-    console.log('📌 Datos originales antes de agrupar:', this.historialVisible);
-
-    this.historialPorAnio = this.historialVisible.reduce((acumulador: any, riego: any) => {
-      const anio = new Date(riego.fecha).getFullYear();
-      if (!acumulador[anio]) {
-        acumulador[anio] = [];
-      }
-      acumulador[anio].push(riego);
-      return acumulador;
-    }, {});
-
-    console.log('📌 Historial agrupado por año:', this.historialPorAnio);
-
-    this.extraerAnios(); // Asegurar que se llama solo después de agrupar
-  }
-
-  extraerAnios() {
-    if (!this.historialPorAnio || Object.keys(this.historialPorAnio).length === 0) {
-      console.warn(' No hay datos en historialPorAnio'); 
-      return;
-    }
-  
-    // Extrae las claves (años) y ordénalos de mayor a menor
-    this.historialAnios = Object.keys(this.historialPorAnio)
-      .filter(anio => !isNaN(Number(anio)))  // Filtrar valores incorrectos
-      .sort((a, b) => Number(b) - Number(a));
-  
-    console.log('✅ Años extraídos correctamente:', this.historialAnios);
-  }
-  
-  cargarHistorialAnio() {
-    if (this.anioSeleccionado) {
-      this.toggleAnioExpandido(this.anioSeleccionado);
-      console.log('Año seleccionado:', this.anioSeleccionado); 
-    }
-  }   
-  obtenerUltimoPoda(nombreFinca: string, index: number): void {
-    this.http.get<any[]>(`http://localhost:5000/poda/${nombreFinca}`).subscribe(
-      (historial) => {
-        if (this.info && this.info[index]) { 
-          if (historial.length > 0) {
-            historial.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-            this.info[index].ultima_poda = this.formatearFecha(historial[0].fecha);
-          } else {
-            this.info[index].ultima_poda = 'No hay registros';
-          }
-        }
-      },
-      (error) => {
-        console.error(`Error al obtener el historial de ${nombreFinca}`, error);
-        if (this.info && this.info[index]) { 
-          this.info[index].ultima_recoleccion = 'No hay registros';
-        }
-      }
-    );
-  }
-  
-  
   formatearFecha(fecha: string): string {
     const fechaObj = new Date(fecha);
     const dia = fechaObj.getDate().toString().padStart(2, '0');
@@ -204,34 +465,15 @@ ngOnChanges(changes: SimpleChanges) {
     return `${dia}/${mes}/${anio}`;
   }
 
-  verHistorial(nombreFinca: string) {
-    if (!nombreFinca) {
-      console.error('El nombre de la finca es inválido');
-      alert('Nombre de finca no válido');
-      return;
-    }
-
-    this.http.get<any[]>(`http://localhost:5000/poda/${nombreFinca}`).subscribe(
-      (response) => {
-        this.historialVisible = response.sort((a, b) => {
-          const fechaA = new Date(a.fecha).getTime();
-          const fechaB = new Date(b.fecha).getTime();
-          return fechaB - fechaA; 
-        });
-        
-        this.historialPorAnio = this.agruparHistorialPorAnio(this.historialVisible);
-        console.log('Datos agrupados por año:', this.historialPorAnio);
-        console.log('Historial visible:', this.historialVisible);
-        console.log('Años detectados:', Object.keys(this.historialPorAnio));
-        this.historialPorAnio = this.agruparHistorialPorAnio(this.historialVisible);
-        this.agruparPorAnio();
-  },
-      (error) => {
-        console.error('Error al obtener el historial', error);
-        alert('No se pudo obtener el historial');
-      }
-    );
-  }
+  getRadio(): number {
+    const totalFincas = this.info.length;
+    if (totalFincas === 0) return 0;
+  
+    const tamañoFicha = 74;
+    const angulo = Math.PI / totalFincas;
+    return tamañoFicha / (2 * Math.tan(angulo));
+  }  
+  
 
   agruparHistorialPorAnio(historial: any[]): { [anio: string]: any[] } {
     return historial.reduce((acc, registro) => {
@@ -241,78 +483,7 @@ ngOnChanges(changes: SimpleChanges) {
       return acc;
     }, {});
   }
-toggleAnioExpandido(anio: string): void {
-  this.anioExpandido[anio] = !this.anioExpandido[anio];
 
-  // Calcular resumen solo si aún no ha sido generado
-    const datos = this.historialPorAnio[anio];
-
-    const formacion = datos
-      .filter((r) => r.metodo === 'formacion')
-      .reduce((sum, r) => sum + r.olivas, 0);
-
-      const produccion = datos
-      .filter((r) => r.metodo === 'produccion')
-      .reduce((sum, r) => sum + r.olivas, 0);
-
-      const rejuvenicimiento = datos
-      .filter((r) => r.metodo === 'rejuvenicimiento')
-      .reduce((sum, r) => sum + r.olivas, 0);
-
-
-    this.resumenHistorialExpandido[anio] = {
-      formacion,
-      produccion,
-      rejuvenicimiento,
-      total: formacion + produccion + rejuvenicimiento,
-    };
-}
-abrirModalYVerHistorial(riego: any) {
-  this.abrirModal(riego);
-  this.verHistorial(riego.nombre);
-}
-  
-
-  enviarDatos(form: NgForm) {
-    const datos = {
-      tipopoda: form.value.tipopoda,
-      fecha: form.value.fechaSeleccionada,
-      olivas: form.value.olivas,
-      riegoSeleccionado: this.riegoSeleccionado.nombre
-    };
-
-    this.http.post(`http://localhost:5000/poda`, datos).subscribe(
-      (response) => {
-        console.log('Datos enviados con éxito:', response);
-        alert('Datos guardados correctamente.');
-
-        form.reset(); 
-        this.tipopoda = ''; 
-        this.olivas = null;
-        this.fechaSeleccionada = null;
-        this.cerrarModal();
-      },
-      (error) => {
-        console.error('Error al enviar los datos:', error);
-        alert('Hubo un error al guardar los datos.');
-      }
-    );
-  }
-
-  abrirModal(riego: any) {
-    this.modalAbierto = true;
-    this.riegoSeleccionado = riego;
-    console.log('Riego seleccionado:', riego);
-  }
-
-  cerrarModal() {
-    this.modalAbierto = false;
-    this.riegoSeleccionado = null;
-  }
-  cerrarModalyHisotrial(){
-    this.cerrarModal()
-    this.ocultarHistorial()
-  }
   getInicial(): string {
     return this.usuarioAutenticado ? this.usuarioAutenticado.charAt(0).toUpperCase() : '';
   } 

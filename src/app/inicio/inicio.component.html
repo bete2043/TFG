@@ -25,15 +25,19 @@
         <div class="barra-lateral" *ngIf="usuarioAutenticado">
             <div class="menu-lateral">
                 <div class="menu-items-superiores">
+                    <button class="item-menu" 
+                            [class.activo]="seccionActual === 'noticias'" 
+                            (click)="mostrarContenido('noticias')">Noticias</button>
+
                     <div class="item-menu desplegable" 
                         [class.activo]="seccionActual === 'fincas'" 
                         (mouseenter)="toggleFincas(true)" 
                         (mouseleave)="toggleFincas(false)">
-                        <button class="item-menus" (click)="mostrarContenido('fincas')">
+                        <button class="item-menus" (click)="mostrarContenido('fincas')"  >
                             Fincas
                             <span class="flecha" [class.abierta]="fincasAbierto">▼</span>
                         </button>
-                        <div class="submenu-fincas" *ngIf="fincasAbierto">
+                        <div class="submenu-fincas" *ngIf="fincasAbierto  && info.length > 0">
                             <button
                                 class="item-submenu" 
                                 *ngFor="let finca of info; let i = index"
@@ -46,10 +50,6 @@
                     <button class="item-menu" 
                             [class.activo]="seccionActual === 'perfil'" 
                             (click)="mostrarContenido('perfil')">Perfil</button>
-
-                    <button class="item-menu" 
-                            [class.activo]="seccionActual === 'noticias'" 
-                            (click)="mostrarContenido('noticias')">Noticias</button>
 
                     <button class="item-menu" 
                             [class.activo]="seccionActual === 'balance'" 
@@ -73,6 +73,9 @@
                 </div>    
                 <div *ngSwitchCase="'perfil'">
                     <app-perfil/>
+                </div>
+                <div *ngSwitchCase="'mapa'">
+                    <app-mapa/>
                 </div>
                 <div *ngSwitchDefault>
                     <app-noticias/>

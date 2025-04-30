@@ -3,9 +3,9 @@
 </head>
 <body>
     <div class="cuerpo">
-        <button (click)="anterior()" class="boton-navegacion">‹</button>
+        <button (click)="anterior()" class="boton-navegacion"  *ngIf="!panelAbierto">‹</button>
     
-        <div class="contenedor-carrusel">
+        <div class="contenedor-carrusel" [ngClass]="{'carrusel-desplazado': panelAbierto}">
             <div class="fichas" [style.transform]="'rotateY(' + (-indiceActual * (360 / info.length)) + 'deg)'">
                 <div class="ficha" *ngFor="let finca of info; let i = index"
                     [style.transform]="'rotateY(' + (i * (360 / info.length)) + 'deg) translateZ(' + getRadio() + 'rem)'">
@@ -20,7 +20,7 @@
                     <div class="boton-alineado">
                         <div class="pares">
                             <div class="casillas">Superficie:</div>
-                            <div class="bd">{{ finca.superficie }} hectáreas</div>
+                            <div class="bd">{{ finca.superficie }} ha</div>
                         </div>
 
                         <button class="boton" (click)="openPanel(finca)">Gestión de Actividades</button>
@@ -34,13 +34,29 @@
             </div>
         </div>
     
-        <button (click)="siguiente()" class="boton-navegacion">›</button>
+        <button (click)="siguiente()" class="boton-navegacion" *ngIf="!panelAbierto">›</button>
 
         <div class="panel-lateral" [class.abierto]="panelAbierto">
             <h3>Actividades "{{ fincaSeleccionada.nombre }}" </h3>
-            <button class="item-menu">Abonado</button>
-            <button class="item-menu">Fitosanitarios</button>
-            <button class="item-menu">Plagas</button>
+            <button class="item-menu" (click)="abrirModalYVerHistorial(finca, 'abonado')">Abonado</button>
+
+            <div class="modal" *ngIf="modalAbiertoAbonado">
+                    <button class="cerrar-boton" (click)="cerrarModal('abonado')">✖</button>
+                    <app-abonado [finca]="finca" (cerrar)="cerrarModal('abonado')"></app-abonado>     
+            </div>
+
+            <button class="item-menu" (click)="abrirModalYVerHistorial(finca, 'fitosanitario')">Fitosanitarios</button>
+            
+            <div class="modal" *ngIf="modalAbiertoFitosanitario">
+                <button class="cerrar-boton" (click)="cerrarModal('fitosanitario')">✖</button>
+                <app-fitosanitarios [finca]="finca" (cerrar)="cerrarModal('fitosanitario')"></app-fitosanitarios>     
+        </div>
+
+            <button class="item-menu" (click)="abrirModalYVerHistorial(finca, 'plagas')">Plagas</button>
+                <div class="modal" *ngIf="this.modalAbiertoPlagas">
+                    <app-plagas ></app-plagas>
+                </div>
+
             <button class="item-menu">Poda</button>
             <button class="item-menu">Recolección</button>
             <button class="item-menu">Riego</button>

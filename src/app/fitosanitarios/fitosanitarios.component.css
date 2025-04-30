@@ -146,6 +146,21 @@
     padding-bottom: 1rem;
 }
 
+.cerrar-boton {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #333;
+}
+
+.cerrar-boton:hover {
+    color: red;
+}
+
 .cerrar-modal {
     background: none;
     border: none;

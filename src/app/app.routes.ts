@@ -25,7 +25,8 @@ export const routes: Routes = [
      {path: 'plagas', component:PlagasComponent},
      {path: 'recoleccion', component:RecoleccionComponent},
      {path: 'perfil', component:PerfilComponent},
-     {path: 'fincas', component:FincasComponent}
+     {path: 'fincas', component:FincasComponent},
+     {path: 'mapa', component:MapaComponent}
 ];
 
 @NgModule({

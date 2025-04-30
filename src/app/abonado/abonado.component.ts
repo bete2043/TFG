@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
@@ -12,13 +12,13 @@ import { FormsModule, NgForm } from '@angular/forms';
   templateUrl: './abonado.component.html',
   styleUrl: './abonado.component.css'
 })
-export class AbonadoComponent {
+export class AbonadoComponent implements OnInit{
   usuarioAutenticado: string | null = null;
     currentRoute: string = '';
     menuAbierto: boolean = false;
     info: any[] = [];
     indiceActual: number = 0;
-    modalAbierto: boolean = false; 
+    modalAbierto: boolean = true; 
     riegoSeleccionado: any = null;
     metodoAbonado: string = '';
     cantidad: number | null = null;
@@ -33,6 +33,15 @@ export class AbonadoComponent {
     anioExpandido: { [anio: string]: boolean } = {};
     anioSeleccionado: string | null = null;
     historialAnios: string[] = [];
+
+    @Input() finca: any;
+    @Input() modal: any; // La finca actual que quieres mostrar
+
+    @Output() cerrar = new EventEmitter<void>();
+
+    cerrarModalDesdeDentro() {
+      this.cerrar.emit();
+    }
 
     constructor(private http: HttpClient, private router: Router, private cdRef: ChangeDetectorRef) {
       this.router.events.pipe(
@@ -49,23 +58,7 @@ export class AbonadoComponent {
     }
     
     ngOnInit() {
-      // Obtener el usuario almacenado en localStorage
-      this.usuarioAutenticado = localStorage.getItem('usuario');
-      console.log('Usuario recuperado de localStorage: ', this.usuarioAutenticado); 
-      
-      this.http.get<any[]>(`http://localhost:5000/fincas/${this.usuarioAutenticado}`).subscribe(
-        (response) => {
-          this.info = response;
-          this.info.forEach((abonado, index) => {
-            this.obtenerUltimoAbonado(abonado.nombre, index);
-          });
-          this.agruparPorAnio();
-          this.extraerAnios();
-        },
-        (error) => {
-          console.error('Error al obtener los datos', error);       
-        }
-      );
+      this.abrirModalYVerHistorial(this.finca);
     }
     
     ocultarHistorial() {

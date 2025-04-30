@@ -221,7 +221,6 @@ body.zoom {
     color: white;
     padding: 2vh 3vw;
     font-size: 1.3vw;
-    z-index: 10;
 }
 .texto-pie{
     /* Tamaño del cuadro de texto */

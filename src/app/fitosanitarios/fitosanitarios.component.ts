@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
@@ -12,7 +12,7 @@ import { filter } from 'rxjs';
   templateUrl: './fitosanitarios.component.html',
   styleUrl: './fitosanitarios.component.css'
 })
-export class FitosanitariosComponent {
+export class FitosanitariosComponent implements OnInit{
     usuarioAutenticado: string | null = null;
     currentRoute: string = '';
     menuAbierto: boolean = false;
@@ -47,25 +47,18 @@ export class FitosanitariosComponent {
       const hoy = new Date();
       this.fechaActual = hoy.toISOString().split('T')[0]
     }
+
+    @Input() finca: any;
+
+    @Output() cerrar = new EventEmitter<void>();
+    
+        cerrarModalDesdeDentro() {
+          this.cerrar.emit();
+        }
     
     ngOnInit() {
-      // Obtener el usuario almacenado en localStorage
-      this.usuarioAutenticado = localStorage.getItem('usuario');
-      console.log('Usuario recuperado de localStorage: ', this.usuarioAutenticado); 
-      
-      this.http.get<any[]>(`http://localhost:5000/fincas/${this.usuarioAutenticado}`).subscribe(
-        (response) => {
-          this.info = response;
-          this.info.forEach((finca, index) => {
-            this.obtenerUltimoCura(finca.nombre, index);
-          });
-          this.agruparPorAnio();
-          this.extraerAnios();
-        },
-        (error) => {
-          console.error('Error al obtener los datos', error);       
-        }
-      );
+      this.abrirModalYVerHistorial(this.finca);
+
     }
     
     ocultarHistorial() {
@@ -179,7 +172,7 @@ export class FitosanitariosComponent {
   toggleAnioExpandido(anio: string): void {
     this.anioExpandido[anio] = !this.anioExpandido[anio];
 
-    // Calcular resumen solo si aún no ha sido generado
+    // Calcular resumen solo si aún no ha sido generadoabonado
       const datos = this.historialPorAnio[anio];
 
       const insecticida = datos.filter((r) => r.metodo === 'insecticida').length;

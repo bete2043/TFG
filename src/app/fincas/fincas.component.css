@@ -21,8 +21,9 @@
     background-position:center;
 }
 .panel-lateral {
-    position: relative;
+    position: fixed;
     width: 0;
+    right: 0;
     height: 100%;
     min-height: 100vh; 
     overflow: hidden;
@@ -44,6 +45,13 @@
     margin-top: 3rem;
 }
 
+/* Cuando el panel lateral está abierto */
+.carrusel-desplazado {
+    transform: translateX(-14rem);
+    transition: transform 0.4s ease;
+    margin: auto;
+}
+
 
 .item-menu {
     background-color: transparent;
@@ -62,6 +70,20 @@
     color: black;
     transform: scale(1.05);
 }
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* fondo oscuro */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999; /* Por encima de todo */
+}
+
+
 
 .cerrar-icono {
     position: absolute;
@@ -204,4 +226,292 @@
 
 .boton-navegacion:hover {
     transform: scale(1.3);
+}
+/*PANEL LATERAL*/
+/* ABONADO */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-contenido {
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5rem;
+    border-radius: 1.25rem;
+    padding: 2rem;
+    width: 50rem;
+    height: 45rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1rem;
+}
+
+.cerrar-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #555;
+    cursor: pointer;
+    position: absolute;
+    top: 10px; 
+    right: 20px;
+}
+
+.cerrar-modal:hover {
+    color: red;
+}
+
+.modal-body {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+.metodo strong{
+    font-size: 1.3rem;
+}
+.metodo p{
+    margin: 0;
+}
+.metodo{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+.menu-metodo {
+    width: 40%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+} 
+.cantidad{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+.cantidad strong{
+    font-size: 1.3rem;
+}
+.cantidad p{
+    margin: 0;
+}
+.cantidad input{
+    padding-left: 0.3rem;
+    width: 17rem;
+}
+.input-fecha {
+    padding: 0.7rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    width: 100%;
+    max-width: 250px;
+}
+.fecha{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+.fecha strong{
+    font-size: 1.3rem;
+}
+.fecha p{
+    margin: 0;
+}
+.btn-enviar{
+    background-color: #FFCF50;
+    width: 40%;
+    height: 2.5rem;
+    border-radius: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+    font-size: 1.4rem;
+    cursor: pointer;
+    border: none;
+    margin:auto;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+.btn-enviar:hover{
+    transform: scale(1.05);
+}
+
+.historial-modal {
+    background-color: #ffffff;
+    height: auto;
+    min-width: 70%;
+    max-width: 600px;
+    padding: 20px 30px; 
+    border-radius: 8px;
+    margin-bottom: 100px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.historial-modal h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+.menu-anios {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.menu-anios label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.menu-anios select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+}
+.tabla{
+    width: 55%;
+}
+.resumen{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 30%;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: #fafafa;
+    border-radius: 5px;
+    overflow: hidden;
+}
+thead {
+    background: #007bff;
+    color: white;
+}
+th, td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+tbody {
+    display: block;
+    text-align: center;
+    max-height: 120px; 
+    overflow-y: auto;
+    width: 100%;
+}
+thead, tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+th {
+    background-color: #3498db;
+    color: white;
+    width: 9rem;
+}
+h3, h4 {
+    text-align: center;
+    color: #333;
+}
+
+ul {
+    padding-left: 20px;
+}
+
+ul li {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+.resumen-historial {
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.resumen-historial h3 {
+    margin-bottom: 10px;
+}
+
+.resumen-historial ul {
+    list-style: none;
+}
+
+.resumen-historial li {
+    font-size: 16px;
+    margin: 5px 0;
+}
+.historial-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    max-width: 1100px; 
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1050;
+}
+
+.content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80rem;
+}
+.btn-hst {
+    margin-top: 15px;
+    padding: 8px 16px;
+    background-color: #FFCF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    color: #000000;
+    font-weight: bold;
+}
+.btn-hst:hover {
+    transform: scale(1.05);
 }

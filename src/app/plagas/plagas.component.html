@@ -3,78 +3,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 </head>
 <body>
-    <div class="barra-superior">    
-        <div class="logo-app"></div>
-        <div class="menu1" *ngIf="usuarioAutenticado">
-            <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
-            <a routerLink="/riego" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Riego</a>
-            <a routerLink="/abonado" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Abonado</a>
-            <a routerLink="/fitosanitario" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Fitosanitarios</a>
-        </div>
-        <div class="foto-app"></div>
-        <div class="menu2" *ngIf="usuarioAutenticado">
-            <a routerLink="/recoleccion" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Recolección</a>
-            <a routerLink="/mapa" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mapa</a>
-            <a routerLink="/poda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Poda</a>
-            <a routerLink="/plagas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Plagas</a>
-        </div>
-
-        <!-- Mostrar nombre y botón de cerrar sesión si el usuario ha iniciado sesión -->
-        <div class="usuario-info" *ngIf="usuarioAutenticado; else loginSection">
-            <div class="usuario-avatar">
-                <span class="inicial" *ngIf="usuarioAutenticado">{{ getInicial() }}</span>
-            </div>
-            
-            <!-- Botón de menú desplegable -->
-            <div class="dropdown">
-                <button class="dropdown-toggle" (click)="toggleMenu($event)"></button>
-    
-                <!-- Menú desplegable -->
-                <ul class="dropdown-menu" *ngIf="menuAbierto">
-                    <li (click)="perfil()">Perfil</li>
-                    <li (click)="cerrarSesion()">Cerrar sesión</li>
-                </ul>
-            </div>
-        </div>
-    
-        <!-- Botón de login si no hay usuario autenticado -->
-        <ng-template #loginSection>
-            <button class="login" (click)="iniciarSesion()"></button>
-        </ng-template>
-    </div>
-    
-    <div class="cuerpo">
-        <button (click)="anterior()" class="boton-navegacion">Anterior</button>
-    
-        <div class="contenedor-carrusel">
-            <div class="fichas" [style.transform]="'rotateY(' + (-indiceActual * (360 / info.length)) + 'deg)'">
-                <div class="ficha" *ngFor="let finca of info; let i = index"
-                     [style.transform]="'rotateY(' + (i * (360 / info.length)) + 'deg) translateZ(40rem)'">
-                    <div class="nombre">{{ finca.nombre }}</div>
-                    <div class="info">
-                        <div class="pares">
-                            <div class="casillas">Superficie:</div>
-                            <div class="bd">{{ finca.superficie }} hectáreas</div>
-                        </div>
-                        <div class="pares">
-                            <div class="casillas">Numero de olivas:</div>
-                            <div class="bd">{{ finca.olivos }}</div>
-                        </div>
-                        <div class="pares">
-                            <div class="casillas">Última plaga:</div>
-                            <div class="bd">{{ finca.ultima_plaga }}</div>
-                        </div>
-                    </div>
-                    <button class="boton" (click)="abrirModalYVerHistorial(finca)" >Obtener Info</button>
-                </div>
-            </div>
-        </div>
-    
-        <button (click)="siguiente()" class="boton-navegacion">Siguiente</button>
-    </div>
     
     <!-- Modal -->
-    <div class="modal" *ngIf="modalAbierto">
+    <div class="modal-fondo">
         <div class="modal-contenido">
             <div class="modal-header">
                 <h2>Detalles de Plagas de {{this.riegoSeleccionado.nombre}}</h2>
@@ -178,25 +109,4 @@
         </div>
     </div>
 
-
-    <div class="pie">
-        <div class="texto-pie">
-            <div class="nombre-cooperativa">S.C.A. SANTO TOMÁS APOSTOL</div>
-            <div class="direccion-cooperativa">
-                Ctra. de Úbeda s/n<br> 
-                23311 Santo Tomé (Jaén)
-            </div>
-            <div class="horario-cooperativa">
-                Horario de atención al público:<br> 
-                De lunes a viernes de 9 a 14h y de 16 a 19h<br> 
-                Verano (21 Jun. – 21 Sep.) de 8 a 15h
-            </div>
-        </div>
-        <div class="foto-pie"></div>
-        <div class="info-pie">
-            <div class="info-politica">INFORMACIÓN</div>
-            <div class="cookies">Políticas de cookies (UE)</div>
-            <div class="terminos">Términos y condiciones</div>
-        </div>
-    </div>
 </body>

@@ -6,11 +6,13 @@ import { HttpClient } from '@angular/common/http';
 import { PerfilComponent } from "../perfil/perfil.component";
 import { NoticiasComponent } from "../noticias/noticias.component";
 import { FincasComponent } from "../fincas/fincas.component";
+import { MapaComponent } from '../mapa/mapa.component';
+
 
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [RouterModule, CommonModule, PerfilComponent, NoticiasComponent, FincasComponent],
+  imports: [RouterModule, CommonModule, PerfilComponent, NoticiasComponent, FincasComponent, MapaComponent],
   templateUrl: './inicio.component.html',
   styleUrls: ['./inicio.component.css']
 })
