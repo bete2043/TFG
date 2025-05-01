@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
@@ -18,7 +18,7 @@ export class RiegoComponent {
     menuAbierto: boolean = false;
     info: any[] = [];
     indiceActual: number = 0;
-    modalAbierto: boolean = false; 
+    modalAbierto: boolean = true; 
     riegoSeleccionado: any = null;
     metodoRiego: string = '';
     cantidad: number | null = null;
@@ -32,6 +32,15 @@ export class RiegoComponent {
     anioExpandido: { [anio: string]: boolean } = {};
     anioSeleccionado: string | null = null;
     historialAnios: string[] = [];
+
+        @Input() finca: any;
+        @Input() modal: any; // La finca actual que quieres mostrar
+    
+        @Output() cerrar = new EventEmitter<void>();
+    
+        cerrarModalDesdeDentro() {
+          this.cerrar.emit();
+        }
 
     constructor(private http: HttpClient, private router: Router, private cdRef: ChangeDetectorRef) {
       this.router.events.pipe(
@@ -48,23 +57,7 @@ export class RiegoComponent {
     }
     
     ngOnInit() {
-      // Obtener el usuario almacenado en localStorage
-      this.usuarioAutenticado = localStorage.getItem('usuario');
-      console.log('Usuario recuperado de localStorage: ', this.usuarioAutenticado); 
-      
-      this.http.get<any[]>(`http://localhost:5000/fincas/${this.usuarioAutenticado}`).subscribe(
-        (response) => {
-          this.info = response;
-          this.info.forEach((riego, index) => {
-            this.obtenerUltimoRiego(riego.nombre, index);
-          });
-          this.agruparPorAnio();
-          this.extraerAnios();
-        },
-        (error) => {
-          console.error('Error al obtener los datos', error);       
-        }
-      );
+      this.abrirModalYVerHistorial(this.finca);
     }
     
     ocultarHistorial() {
@@ -141,8 +134,8 @@ export class RiegoComponent {
     verHistorial(nombreFinca: string) {
       if (!nombreFinca) {
         console.error('El nombre de la finca es inválido');
-        alert('Nombre de finca no válido');
-        return;
+/*         alert('Nombre de finca no válido');
+ */        return;
       }
 
       this.http.get<any[]>(`http://localhost:5000/riego/${nombreFinca}`).subscribe(
@@ -162,8 +155,8 @@ export class RiegoComponent {
     },
         (error) => {
           console.error('Error al obtener el historial', error);
-          alert('No se pudo obtener el historial');
-        }
+/*           alert('No se pudo obtener el historial');
+ */        }
       );
     }
 
@@ -215,8 +208,8 @@ export class RiegoComponent {
       this.http.post(`http://localhost:5000/riego`, datos).subscribe(
         (response) => {
           console.log('Datos enviados con éxito:', response);
-          alert('Datos guardados correctamente.');
-
+/*           alert('Datos guardados correctamente.');
+ */
           form.reset(); 
         this.metodoRiego = ''; 
         this.cantidad = null;
@@ -226,8 +219,8 @@ export class RiegoComponent {
         },
         (error) => {
           console.error('Error al enviar los datos:', error);
-          alert('Hubo un error al guardar los datos.');
-        }
+/*           alert('Hubo un error al guardar los datos.');
+ */        }
       );
     }
 

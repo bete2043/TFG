@@ -122,7 +122,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
 }
 
 .modal-contenido {
@@ -144,6 +143,21 @@
     align-items: center;
     border-bottom: 1px solid #ddd;
     padding-bottom: 1rem;
+}
+
+.cerrar-boton {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #333;
+}
+
+.cerrar-boton:hover {
+    color: red;
 }
 
 .cerrar-modal {

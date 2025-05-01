@@ -41,25 +41,44 @@
             <button class="item-menu" (click)="abrirModalYVerHistorial(finca, 'abonado')">Abonado</button>
 
             <div class="modal" *ngIf="modalAbiertoAbonado">
-                    <button class="cerrar-boton" (click)="cerrarModal('abonado')">✖</button>
+                    <button class="cerrar-boton" >✖</button>
                     <app-abonado [finca]="finca" (cerrar)="cerrarModal('abonado')"></app-abonado>     
             </div>
 
             <button class="item-menu" (click)="abrirModalYVerHistorial(finca, 'fitosanitario')">Fitosanitarios</button>
             
             <div class="modal" *ngIf="modalAbiertoFitosanitario">
-                <button class="cerrar-boton" (click)="cerrarModal('fitosanitario')">✖</button>
+                <button class="cerrar-boton">✖</button>
                 <app-fitosanitarios [finca]="finca" (cerrar)="cerrarModal('fitosanitario')"></app-fitosanitarios>     
-        </div>
+            </div>
 
             <button class="item-menu" (click)="abrirModalYVerHistorial(finca, 'plagas')">Plagas</button>
-                <div class="modal" *ngIf="this.modalAbiertoPlagas">
-                    <app-plagas ></app-plagas>
+                
+            <div class="modal" *ngIf="modalAbiertoPlagas">
+                    <button class="cerrar-boton">✖</button>
+                    <app-plagas [finca]="finca" (cerrar)="cerrarModal('plagas')"></app-plagas>     
                 </div>
 
-            <button class="item-menu">Poda</button>
-            <button class="item-menu">Recolección</button>
-            <button class="item-menu">Riego</button>
+            <button class="item-menu" (click)="abrirModalYVerHistorial(finca, 'poda')">Poda</button>
+
+            <div class="modal" *ngIf="modalAbiertoPoda">
+                <button class="cerrar-boton">✖</button>
+                <app-poda [finca]="finca" (cerrar)="cerrarModal('poda')"></app-poda>     
+            </div>
+
+            <button class="item-menu" (click)="abrirModalYVerHistorial(finca, 'recoleccion')">Recoleccion</button>
+
+            <div class="modal" *ngIf="modalAbiertoRecoleccion">
+                <button class="cerrar-boton">✖</button>
+                <app-recoleccion [finca]="finca" (cerrar)="cerrarModal('recoleccion')"></app-recoleccion>     
+            </div>
+
+            <button class="item-menu" (click)="abrirModalYVerHistorial(finca, 'riego')">Riego</button>
+
+            <div class="modal" *ngIf="modalAbiertoRiego">
+                <button class="cerrar-boton">✖</button>
+                <app-riego [finca]="finca" (cerrar)="cerrarModal('riego')"></app-riego>     
+            </div>
 
             <button class="cerrar-icono" *ngIf="panelAbierto" (click)="cerrarPanel()">✕</button>
         </div>

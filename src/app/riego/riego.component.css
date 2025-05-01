@@ -122,7 +122,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
 }
 
 .modal-contenido {
@@ -144,6 +143,21 @@
     align-items: center;
     border-bottom: 1px solid #ddd;
     padding-bottom: 1rem;
+}
+
+.cerrar-boton {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #333;
+}
+
+.cerrar-boton:hover {
+    color: red;
 }
 
 .cerrar-modal {
@@ -281,7 +295,11 @@
     width: 55%;
 }
 .resumen{
-    width: 40%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 30%;
 }
 table {
     width: 100%;
@@ -359,21 +377,23 @@ select:focus {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: absolute;
+    position: fixed; 
     top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-    width: 900px; 
-    background-color: white;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    max-width: 1100px; 
+    background-color: #ffffff;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1050;
 }
+
 .content{
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 2rem;
+    justify-content: center;
+    align-items: center;
+    width: 80rem;
 }
 .btn-hst {
     margin-top: 15px;

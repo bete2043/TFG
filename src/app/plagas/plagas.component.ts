@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
@@ -12,12 +12,13 @@ import { filter } from 'rxjs';
   templateUrl: './plagas.component.html',
   styleUrl: './plagas.component.css'
 })
-export class PlagasComponent {usuarioAutenticado: string | null = null;
+export class PlagasComponent implements OnInit{
+  usuarioAutenticado: string | null = null;
     currentRoute: string = '';
     menuAbierto: boolean = false;
     info: any[] = [];
     indiceActual: number = 0;
-    modalAbierto: boolean = false; 
+    modalAbierto: boolean = true; 
     riegoSeleccionado: any = null;
     tipoplaga: string = '';
     gradoafectacion: string = '';
@@ -35,6 +36,15 @@ export class PlagasComponent {usuarioAutenticado: string | null = null;
     anioSeleccionado: string | null = null;
     historialAnios: string[] = [];
 
+    @Input() finca: any;
+        @Input() modal: any; // La finca actual que quieres mostrar
+    
+        @Output() cerrar = new EventEmitter<void>();
+    
+        cerrarModalDesdeDentro() {
+          this.cerrar.emit();
+        }
+
     constructor(private http: HttpClient, private router: Router, private cdRef: ChangeDetectorRef) {
       this.router.events.pipe(
         filter(event => event instanceof NavigationEnd)
@@ -50,23 +60,7 @@ export class PlagasComponent {usuarioAutenticado: string | null = null;
     }
     
     ngOnInit() {
-      // Obtener el usuario almacenado en localStorage
-      this.usuarioAutenticado = localStorage.getItem('usuario');
-      console.log('Usuario recuperado de localStorage: ', this.usuarioAutenticado); 
-      
-      this.http.get<any[]>(`http://localhost:5000/fincas/${this.usuarioAutenticado}`).subscribe(
-        (response) => {
-          this.info = response;
-          this.info.forEach((finca, index) => {
-            this.obtenerUltimaPlaga(finca.nombre, index);
-          });
-          this.agruparPorAnio();
-          this.extraerAnios();
-        },
-        (error) => {
-          console.error('Error al obtener los datos', error);       
-        }
-      );
+      this.abrirModalYVerHistorial(this.finca);
     }
     
     ocultarHistorial() {
@@ -143,8 +137,8 @@ export class PlagasComponent {usuarioAutenticado: string | null = null;
     verHistorial(nombreFinca: string) {
       if (!nombreFinca) {
         console.error('El nombre de la finca es inválido');
-        alert('Nombre de finca no válido');
-        return;
+/*         alert('Nombre de finca no válido');
+ */        return;
       }
 
       this.http.get<any[]>(`http://localhost:5000/plagas/${nombreFinca}`).subscribe(
@@ -164,8 +158,8 @@ export class PlagasComponent {usuarioAutenticado: string | null = null;
     },
         (error) => {
           console.error('Error al obtener el historial', error);
-          alert('No se pudo obtener el historial');
-        }
+/*           alert('No se pudo obtener el historial');
+ */        }
       );
     }
 
@@ -236,8 +230,8 @@ export class PlagasComponent {usuarioAutenticado: string | null = null;
       this.http.post(`http://localhost:5000/plagas`, datos).subscribe(
         (response) => {
           console.log('Datos enviados con éxito:', response);
-          alert('Datos guardados correctamente.');
-
+/*           alert('Datos guardados correctamente.');
+ */
           form.reset(); 
         this.tipoplaga = ''; 
         this.olivas = null;
@@ -249,8 +243,8 @@ export class PlagasComponent {usuarioAutenticado: string | null = null;
         },
         (error) => {
           console.error('Error al enviar los datos:', error);
-          alert('Hubo un error al guardar los datos.');
-        }
+/*           alert('Hubo un error al guardar los datos.');
+ */        }
       );
     }
 

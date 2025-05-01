@@ -5,11 +5,11 @@
 <body>
     
     <!-- Modal -->
-    <div class="modal-fondo">
+    <div class="modal" *ngIf="modalAbierto">
         <div class="modal-contenido">
             <div class="modal-header">
-                <h2>Detalles de Plagas de {{this.riegoSeleccionado.nombre}}</h2>
-                <button class="cerrar-modal" (click)="cerrarModalyHisotrial()">✖</button>
+                <h2>Detalles de las Plagas de {{this.riegoSeleccionado.nombre}}</h2>
+                <button class="cerrar-boton" (click)="cerrarModalDesdeDentro()">✖</button>
             </div>
             <form (ngSubmit)="enviarDatos(f)" #f="ngForm">
                 <div class="modal-body">
