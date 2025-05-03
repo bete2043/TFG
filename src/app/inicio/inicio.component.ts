@@ -7,6 +7,8 @@ import { PerfilComponent } from "../perfil/perfil.component";
 import { NoticiasComponent } from "../noticias/noticias.component";
 import { FincasComponent } from "../fincas/fincas.component";
 import { MapaComponent } from '../mapa/mapa.component';
+import { UsuarioService } from '../../usuario.service';
+
 
 
 @Component({
@@ -24,7 +26,7 @@ export class InicioComponent {
   
   info: any[] = [];
 
-  constructor(private http: HttpClient, private router: Router, private cdRef: ChangeDetectorRef) {
+  constructor(private http: HttpClient, private router: Router, private cdRef: ChangeDetectorRef,  private usuarioService: UsuarioService) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
@@ -36,6 +38,10 @@ export class InicioComponent {
   }
   
   ngOnInit() {
+    this.usuarioService.usuario$.subscribe(usuario => {
+      this.usuarioAutenticado = usuario;
+      this.cdRef.detectChanges(); 
+    });
     // Obtener el usuario almacenado en localStorage
     this.usuarioAutenticado = localStorage.getItem('usuario');
     console.log('Usuario recuperado de localStorage: ', this.usuarioAutenticado); 

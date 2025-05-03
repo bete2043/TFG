@@ -50,6 +50,7 @@
     transform: translateX(-14rem);
     transition: transform 0.4s ease;
     margin: auto;
+    z-index: 1000;
 }
 
 

@@ -135,8 +135,8 @@ export class FitosanitariosComponent implements OnInit{
     verHistorial(nombreFinca: string) {
       if (!nombreFinca) {
         console.error('El nombre de la finca es inválido');
-        alert('Nombre de finca no válido');
-        return;
+/*         alert('Nombre de finca no válido');
+ */        return;
       }
 
       this.http.get<any[]>(`http://localhost:5000/fitosanitarios/${nombreFinca}`).subscribe(
@@ -156,8 +156,8 @@ export class FitosanitariosComponent implements OnInit{
     },
         (error) => {
           console.error('Error al obtener el historial', error);
-          alert('No se pudo obtener el historial');
-        }
+/*           alert('No se pudo obtener el historial');
+ */        }
       );
     }
 
@@ -216,8 +216,8 @@ export class FitosanitariosComponent implements OnInit{
       this.http.post(`http://localhost:5000/fitosanitarios`, datos).subscribe(
         (response) => {
           console.log('Datos enviados con éxito:', response);
-          alert('Datos guardados correctamente.');
-
+/*           alert('Datos guardados correctamente.');
+ */
           form.reset(); 
         this.tipofitosaniraio = ''; 
         this.nombreFitosanitario = '';
@@ -228,8 +228,8 @@ export class FitosanitariosComponent implements OnInit{
         },
         (error) => {
           console.error('Error al enviar los datos:', error);
-          alert('Hubo un error al guardar los datos.');
-        }
+/*           alert('Hubo un error al guardar los datos.');
+ */        }
       );
     }
 

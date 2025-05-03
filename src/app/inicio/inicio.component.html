@@ -35,9 +35,9 @@
                         (mouseleave)="toggleFincas(false)">
                         <button class="item-menus" (click)="mostrarContenido('fincas')"  >
                             Fincas
-                            <span class="flecha" [class.abierta]="fincasAbierto">▼</span>
+                            <span class="flecha" [class.abierta]="fincasAbierto" *ngIf="seccionActual !== 'mapa'">▼</span>
                         </button>
-                        <div class="submenu-fincas" *ngIf="fincasAbierto  && info.length > 0">
+                        <div class="submenu-fincas" *ngIf="fincasAbierto && info.length > 0 && seccionActual !== 'mapa'">
                             <button
                                 class="item-submenu" 
                                 *ngFor="let finca of info; let i = index"

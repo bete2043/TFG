@@ -5,6 +5,26 @@
 <body>
     <div class="map-container">
         <div id="map"></div>
+        <div *ngIf="mostrarFormulario" class="formulario-overlay">
+            <div class="formulario-polygon">
+            <p class="title">Nueva Finca</p>
+            <form (ngSubmit)="confirmarGuardado()" #formPolygon="ngForm">
+                <div class="input_container">
+                <input type="text" [(ngModel)]="nuevoPoligono.nombre" name="nombre" placeholder="Nombre" required />
+                </div>
+                <div class="input_container">
+                <input type="number" [(ngModel)]="nuevoPoligono.olivos" name="olivos" placeholder="Número de olivos" required />
+                </div>
+                <p>Superficie: {{ nuevoPoligono.superficie }} ha</p>        
+                <div class="botones">
+                <button type="submit" class="guardar">Guardar</button>
+                <button type="button" class="cancelar" (click)="cancelarGuardado()">Cancelar</button>
+                </div>
+            </form>
+            </div>
+        </div>
+        
+        
     </div>
     
 </body>

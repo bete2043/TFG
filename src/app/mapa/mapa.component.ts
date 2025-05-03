@@ -2,12 +2,14 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, AfterViewInit } from '@angular/core';
 import {  RouterModule, Routes } from '@angular/router';
+import { FormsModule, NgForm } from '@angular/forms';
+
 declare var google: any;
 
 @Component({
   selector: 'app-mapa',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, FormsModule],
   templateUrl: './mapa.component.html',
   styleUrl: './mapa.component.css'
 })
@@ -17,6 +19,8 @@ export class MapaComponent implements AfterViewInit{
   drawingManager: any;
   polygon: any;
   fincasAbierto: boolean = false;
+  mostrarFormulario = false;
+  nuevoPoligono: any = {};
 
   constructor(private http: HttpClient) {}
 
@@ -114,32 +118,47 @@ export class MapaComponent implements AfterViewInit{
     });
   }
 
+
+  confirmarGuardado() {
+    if (this.nuevoPoligono.nombre && this.nuevoPoligono.olivos > 0) {
+      this.savePolygon(this.nuevoPoligono);
+      this.mostrarFormulario = false;
+      window.location.reload();
+    } else {
+      alert("Por favor, completa todos los campos.");
+    }
+  }
+  
+  cancelarGuardado() {
+    this.mostrarFormulario = false;
+    if (this.polygon) {
+      this.polygon.setMap(null);
+      this.polygon = null;
+    }
+  }
+  
+
+  
   handlePolygon() {
     const path = this.polygon.getPath();
     const coordinates = [];
+  
     for (let i = 0; i < path.getLength(); i++) {
       const latLng = path.getAt(i);
       coordinates.push({ lat: latLng.lat(), lng: latLng.lng() });
     }
-
+  
     const areaMeters2 = google.maps.geometry.spherical.computeArea(path);
     const areaHectares = areaMeters2 / 10000;
-
-    const nombre = prompt("Nombre del polígono:");
-    const olivos = prompt("Número de olivos:");
-    const superficie = areaHectares.toFixed(2);
-
-    if (nombre && olivos) {
-      const polygonData = {
-        nombre: nombre,
-        superficie: superficie,
-        olivos: parseInt(olivos, 10),
-        coordenadas: coordinates
-      };
-      this.savePolygon(polygonData);
-    }
-
+  
+    this.nuevoPoligono = {
+      superficie: areaHectares.toFixed(2),
+      coordenadas: coordinates
+    };
+  
+    this.mostrarFormulario = true;
   }
+  
 
   savePolygon(polygonData: any) {
     const usuario = localStorage.getItem('usuario'); // O como estés guardando el nombre de usuario
@@ -152,12 +171,12 @@ export class MapaComponent implements AfterViewInit{
     this.http.post(`http://localhost:5000/fincas/${usuario}`, polygonData).subscribe(
       (res) => {
         console.log("Respuesta del servidor:", res);
-        alert("Finca guardada correctamente");
-      },
+/*         alert("Finca guardada correctamente");
+ */      },
       (error) => {
         console.error("Error guardando finca:", error);
-        alert("Hubo un error al guardar la finca");
-      }
+/*         alert("Hubo un error al guardar la finca");
+ */      }
     );
   }
   

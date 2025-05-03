@@ -12,3 +12,98 @@
     position: relative;
     z-index: 10;
 }
+.formulario-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.formulario-polygon {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+/* Título más estilizado */
+.formulario-polygon .title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Superficie destacada */
+.formulario-polygon p {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Input container y campos */
+.input_container {
+    position: relative;
+    margin: 0.5rem auto;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+input {
+    width: 100%;
+    height: 3rem;
+    border-radius: 1.5rem;
+    padding-left: 1rem;
+    border: 1px solid #ccc;
+    font-size: 1.1rem;
+    outline: none;
+}
+
+/* Botones alineados juntos */
+.botones {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.guardar, .cancelar {
+    flex: 1;
+    padding: 0.7rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 1.25rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.guardar {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.cancelar {
+    background-color: #f44336;
+    color: white;
+}
+
+/* Hover con tono más oscuro */
+.guardar:hover {
+    background-color: #3e8e41;
+}
+
+.cancelar:hover {
+    background-color: #d32f2f;
+}
