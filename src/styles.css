@@ -196,19 +196,6 @@ body.zoom {
 .login:hover{
     transform: scale(1.1);
 }
-/* .cuerpo{
-    width: 100%;
-    margin: auto;
-    flex: 1;
-    box-sizing: border-box;
-    min-height: 100vh; 
-    background-image: url('/image.png');
-    background-size: cover; 
-    background-position:center;
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-} */
 .pie{
     display: flex;
     justify-content: space-around;
@@ -225,8 +212,7 @@ body.zoom {
 .texto-pie{
     /* Tamaño del cuadro de texto */
     height: 20vh;
-    width: 40vh;
-    margin-left: 2vw;
+    width: 60vh;
     /* Colocar el texto en el centro */
     display: flex; 
     flex-direction: column; 
@@ -251,6 +237,7 @@ body.zoom {
     height: 30vh;
     width: 55vh;
     max-width: 100%;
+    margin: auto;
     /* Colocación de la imagen*/
     background-image: url('/jaencoop-logo.png');
     background-size: contain;
@@ -260,7 +247,7 @@ body.zoom {
 .info-pie{
     /* Tamaño del cuadro de texto */
     height: 20vh;
-    width: 23vh;
+    width: 27vh;
     margin-right: 6vh;
     /* Colocación del texto en el centro*/
     text-align: center;
@@ -268,60 +255,4 @@ body.zoom {
     flex-direction: column; 
     justify-content: center; 
     align-items: start; 
-}
-@media (max-width: 900px) {
-    .barra-superior {
-        height: auto; /* Se ajusta según el contenido */
-        padding: 1vh 2vw;
-        text-align: center;
-        position: relative; /* No fija toda la pantalla */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    .logo-app, .foto-app, .imagen1, .imagen2 {
-        display: none;
-    }
-    .menus {
-        display: flex;
-        flex-direction: column; 
-        align-items: center;
-        width: 100%;
-        gap: 0.5vh;
-    }
-
-    .menu1, .menu2 {
-        display: flex;
-        flex-direction: row; /* Mantiene los elementos en fila */
-        justify-content: center;
-        width: 100%;
-        gap: 1.5vw; /* Espaciado */
-    }
-
-    .menu1 a, .menu2 a {
-        font-size: 2vw;
-    }
-
-    .usuario-info {
-        position: absolute;
-        top: 50%;
-        right: 2vw;
-        transform: translateY(-50%);
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 1vh;
-    }
-
-    .nombre-usuario {
-        font-size: 2vw;
-        color: #ffffff;
-        font-weight: bold;
-    }
-
-    .logout {
-        height: 4vw;
-        width: 4vw;
-        background-size: contain;
-    }
 }

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, QueryList, ViewChildren } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
@@ -73,6 +73,7 @@ export class FincasComponent implements OnChanges{
 
 
   abrirModalYVerHistorial(riego: any, item: string) {
+    document.body.classList.add('no-scroll');
       switch (item) {
         case 'abonado':
           this.abrirModalAbonado(riego);
@@ -137,8 +138,41 @@ export class FincasComponent implements OnChanges{
 
 
   /* ------------------------------------------------------------------------------------- */
+getCenter(coordenadas: { lat: number; lng: number }[]): { lat: number; lng: number } {
+  const total = coordenadas.length;
+  const sum = coordenadas.reduce((acc, coord) => ({
+    lat: acc.lat + coord.lat,
+    lng: acc.lng + coord.lng
+  }), { lat: 0, lng: 0 });
 
+  return {
+    lat: sum.lat / total,
+    lng: sum.lng / total
+  };
+}
 
+getStaticMapUrl(finca: any): string {
+  if (!finca.coordenadas || finca.coordenadas.length === 0) return '';
+
+  const base = 'https://maps.googleapis.com/maps/api/staticmap';
+  const size = '600x400';
+  const maptype = 'satellite';
+  const zoom = 17;
+
+  // Centro del polígono
+  const center = this.getCenter(finca.coordenadas);
+
+  // Cerrar el polígono repitiendo el primer punto
+  const coords = [...finca.coordenadas, finca.coordenadas[0]];
+  const path = coords.map(c => `${c.lat},${c.lng}`).join('|');
+
+  const url = `${base}?center=${center.lat},${center.lng}&zoom=${zoom}&size=${size}&maptype=${maptype}&path=color:0xff0000ff|weight:2|${path}&key=AIzaSyCCeQhaAhcWvW8oFMwCpT0RcqxKrQ72V3s`;
+
+  return url;
+}
+
+  
+  
   /* ABRIR PANEL LATERAL */
   openPanel(finca: any) {
     this.fincaSeleccionada = finca;

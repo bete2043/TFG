@@ -1,8 +1,16 @@
-from flask import Flask, request, jsonify
+import math
+import os
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
+import cv2
+import numpy as np
+import base64
+from io import BytesIO
+from PIL import Image
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)  # Permitir Angular
@@ -21,6 +29,84 @@ fitosanitarios = mongo.db.fitosanitarios
 recoleccion = mongo.db.recoleccion
 poda = mongo.db.poda
 plagas = mongo.db.plagas
+
+def decode_base64_image(base64_string):
+    try:
+        # Quitar encabezado si existe
+        if ',' in base64_string:
+            base64_string = base64_string.split(',')[1]
+
+        # Padding necesario
+        missing_padding = len(base64_string) % 4
+        if missing_padding:
+            base64_string += '=' * (4 - missing_padding)
+
+        # Decodificar imagen
+        image_data = base64.b64decode(base64_string)
+        pil_image = Image.open(BytesIO(image_data)).convert("RGB")  # Asegura compatibilidad
+
+        return np.asarray(pil_image)  
+    except Exception as e:
+        print(f"Error al decodificar la imagen: {e}")
+        return None
+
+
+@app.route('/contar_olivos', methods=['POST'])
+def contar_olivos():
+
+    data = request.get_json()
+    image_data = data['imagen']
+    mask_points = data['poligono']
+
+    img = decode_base64_image(image_data)
+    if img is None:
+        return jsonify({'error': 'Error al cargar la imagen'}), 400
+
+    # Crear máscara de región seleccionada
+    mask = np.zeros(img.shape[:2], dtype=np.uint8)
+    points = np.array([[int(p['x']), int(p['y'])] for p in mask_points], dtype=np.int32)
+    cv2.fillPoly(mask, [points], 255)
+
+    # Aplicar la máscara al original
+    masked_img = cv2.bitwise_and(img, img, mask=mask)
+
+    # Convertir a escala de grises
+    gray = cv2.cvtColor(masked_img, cv2.COLOR_BGR2GRAY)
+
+    # Aplicar umbral Otsu para separar fondo y olivos
+    _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    # Aplicar la máscara de nuevo por seguridad
+    binary = cv2.bitwise_and(binary, binary, mask=mask)
+
+    # Quitar ruido con apertura (morfología)
+    kernel = np.ones((3, 3), np.uint8)
+    cleaned = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
+
+    # Encontrar contornos externos
+    inverted = cv2.bitwise_not(cleaned)
+    contours, _ = cv2.findContours(inverted, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Contar contornos con área válida
+    olivo_count = 0
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if 50 < area < 3000:  # Ajustar este rango según tamaño típico de olivos
+            olivo_count += 1
+            cv2.drawContours(masked_img, [cnt], -1, (0, 0, 255), 1)
+    # Guardar resultados
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    result_img_path = f'mapa_detectado_{timestamp}.jpg'
+    mask_img_path = f'mascara_binaria_{timestamp}.jpg'
+    cv2.imwrite(result_img_path, masked_img)
+    cv2.imwrite(mask_img_path, cleaned)
+
+    return jsonify({
+        'olivos': olivo_count,
+        'image_path': result_img_path,
+        'mask_path': mask_img_path
+    })
+
 
 # Obtener todos los datos del usuario por username
 @app.route('/perfil/<username>', methods=['GET'])
@@ -65,14 +151,62 @@ def cambiar_contrasena(username):
     if actual == nueva:
         return jsonify({'error': 'Utilice una contraseña distinta'}), 200
 
-    if user['password'] != actual:
+    if not check_password_hash(user['password'], actual):
         return jsonify({'error': 'Contraseña incorrecta'}), 200
-
     
 
-    users.update_one({'username': username}, {'$set': {'password': nueva}})
+    hashed_nueva = generate_password_hash(nueva)
+    users.update_one({'username': username}, {'$set': {'password': hashed_nueva}})
+
     return jsonify({'ok': 'Contraseña cambiada correctamente'}), 200
 
+@app.route('/fincas/<user>', methods=['POST'])
+def guardar_finca(user):
+    data = request.json
+    nombre = data.get('nombre')
+    superficie = data.get('superficie')
+    olivos = data.get('olivos')
+    coordenadas = data.get('coordenadas')
+
+    if fincas.find_one({'nombre': nombre}):
+        return jsonify({'error': 'Ya existe una finca con ese nombre'}), 400
+
+
+    if not all([user, nombre, superficie, olivos, coordenadas]):
+        return jsonify({'error': 'Datos incompletos'}), 400
+
+    fincas.insert_one({
+        'nombre': nombre,
+        'superficie': superficie,
+        'olivos': olivos,
+        'coordenadas': coordenadas
+    })
+
+    users.update_one({'username': user}, {'$push': {'fincas': nombre}})
+    return jsonify({'message': 'Finca guardada correctamente'}), 201
+
+# Fincas de cada usuario
+@app.route('/fincas/<user>' , methods=['GET'])
+def obtener_fincas(user):
+    finca = users.find_one({'username': user})
+    if not finca:
+        return jsonify({"error": "Usuario no encontrado " + user}), 404
+    fincas_user = finca.get("fincas", [])
+    
+    datos_fincas = []
+
+    for i in fincas_user:
+        datos = fincas.find_one({'nombre':i})
+        if datos:
+            datos_fincas.append({
+                "id": str(datos["_id"]),
+                "nombre": datos["nombre"],
+                "superficie": datos["superficie"],
+                "olivos": datos["olivos"],
+                "coordenadas": datos["coordenadas"]
+            })
+
+    return jsonify(datos_fincas)
 
 # Ruta para registrar un usuario
 @app.route('/crear_cuenta', methods=['POST'])
@@ -138,27 +272,6 @@ def obtener_noticias():
         })
 
     return jsonify(resultado)
-# Fincas de cada usuario
-@app.route('/fincas/<user>' , methods=['GET'])
-def obtener_fincas(user):
-    finca = users.find_one({'username': user})
-    if not finca:
-        return jsonify({"error": "Usuario no encontrado " + user}), 404
-    fincas_user = finca.get("fincas", [])
-    
-    datos_fincas = []
-
-    for i in fincas_user:
-        datos = fincas.find_one({'nombre':i})
-        if datos:
-            datos_fincas.append({
-                "id": str(datos["_id"]),
-                "nombre": datos["nombre"],
-                "superficie": datos["superficie"],
-                "olivos": datos["olivos"]
-            })
-
-    return jsonify(datos_fincas)
 "USUARIOS"
 """ Datos del usuario """
 @app.route('/usuarios/<nombre>', methods=['GET'])
@@ -284,8 +397,8 @@ def historial_finca_abonado(nombre_finca):
 def datos_fitosanitarios():
     data = request.json
     tipofitosanitario = data.get('tipofitosanitario')
-    cantidad = data.get('cantidad')
-    fecha = data.get('fecha')
+    cantidad = data.get('cantidadFitosanitario')
+    fecha = data.get('fechaSeleccionadaFitosaniario')
     riegoSeleccionado = data.get('riegoSeleccionado')
     nombreFitosanitario = data.get('nombreFitosanitario')
 

@@ -123,4 +123,6 @@ export class InicioComponent {
     this.seccionActual = seccion;
   }
 
+
+
 }

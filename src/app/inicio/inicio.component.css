@@ -26,6 +26,7 @@ body, .contenido-pagina {
     background-size: cover; 
     background-position:center;
     overflow-y: auto;
+    z-index: -1;
 }
 
 .menu-lateral {
