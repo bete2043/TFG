@@ -4,6 +4,8 @@ import { Component, AfterViewInit } from '@angular/core';
 import {  RouterModule, Routes } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
 import html2canvas from 'html2canvas';
+import Swal from 'sweetalert2';
+
 
 declare var google: any;
 
@@ -46,8 +48,11 @@ export class MapaComponent implements AfterViewInit{
   }
   
   dibujarPoligono(finca: any) {
+
+    console.log("Finca recibida:", finca);
+    
     const coords = finca.coordenadas;
-  
+
     const polygon = new google.maps.Polygon({
       paths: coords,
       strokeColor: '#FF0000',
@@ -57,13 +62,13 @@ export class MapaComponent implements AfterViewInit{
       fillOpacity: 0.25,
       editable: false
     });
-  
+
     polygon.setMap(this.map);
-  
-    // Calcular el centroide del polígono
+
+    // Calcular centroide
     let latSum = 0;
     let lngSum = 0;
-    coords.forEach((coord: { lat: number; lng: number; }) => {
+    coords.forEach((coord: { lat: number; lng: number }) => {
       latSum += coord.lat;
       lngSum += coord.lng;
     });
@@ -71,8 +76,8 @@ export class MapaComponent implements AfterViewInit{
       lat: latSum / coords.length,
       lng: lngSum / coords.length
     };
-  
-    // Crear y mostrar el InfoWindow sin el botón de cierre
+
+    // HTML del InfoWindow con botón cerrar y eliminar
     const infoContent = `
       <div style="
         font-family: Arial, sans-serif;
@@ -81,55 +86,79 @@ export class MapaComponent implements AfterViewInit{
         background: #ffffff;
         border: 1px solid #ccc;
         box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        max-width: 220px;
+        max-width: 240px;
       ">
         <h4 style="margin: 0 0 4px 0; font-size: 19px; color:rgb(0, 0, 0);">${finca.nombre}</h4>
         <p style="margin: 2px 0; font-size: 14px; color: #555;">
           <strong>Olivos:</strong> ${finca.olivos}<br>
           <strong>Hectáreas:</strong> ${finca.superficie}
         </p>
+        <div style="margin-top: 8px;">
+          <button id="btnEliminar-${finca.id}" style="margin-right: 6px; padding: 4px 8px; font-size: 13px;">Eliminar</button>
+        </div>
       </div>
     `;
-  
+
     const infoWindow = new google.maps.InfoWindow({
       content: infoContent,
       position: centroide,
       disableAutoPan: true,
-      pixelOffset: new google.maps.Size(0, -30)  // Opcional
+      pixelOffset: new google.maps.Size(0, -30)
     });
-  
-    // Función para ocultar la "X"
-    const ocultarBotonCerrar = () => {
-      const closeButton = document.querySelector('.gm-ui-hover-effect') as HTMLElement;
-      if (closeButton) {
-        closeButton.style.display = 'none';  // Oculta el botón de cierre
-      }
-    };
-  
-    // Observar cambios en el DOM para detectar la "X" y ocultarla
-    const observer = new MutationObserver(() => {
-      ocultarBotonCerrar();  // Oculta la "X" cuando el DOM cambia
-    });
-  
-    // Configuración del observer
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  
-    // Mostrar InfoWindow al pasar el mouse
-    polygon.addListener('mouseover', () => {
+
+    // Mostrar InfoWindow al hacer clic
+    polygon.addListener('click', () => {
       infoWindow.open(this.map);
-  
-      // Asegurarse de que el botón de cierre esté oculto cada vez
-      ocultarBotonCerrar();
     });
-  
-    polygon.addListener('mouseout', () => {
-      infoWindow.close();
+
+    // Asignar eventos a botones cuando se abre el InfoWindow
+    google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+      const btnEliminar = document.getElementById(`btnEliminar-${finca.id}`);
+
+      if (btnEliminar) {
+        console.log("Intentando eliminar finca33333:", finca.id);
+        btnEliminar.addEventListener('click', () => this.eliminarFinca(finca.id, polygon, infoWindow));
+      }
     });
   }
+
   
+  eliminarFinca(fincaId: string, polygon: any, infoWindow: any) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará la finca permanentemente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.http.delete(`http://localhost:5000/fincas/${fincaId}`).subscribe({
+          next: () => {
+            Swal.fire(
+              '¡Eliminada!',
+              'La finca se ha eliminado correctamente.',
+              'success'
+            );
+            polygon.setMap(null); // Quitar del mapa
+            infoWindow.close();   // Cerrar el infoWindow
+          },
+          error: (err) => {
+            console.error("Error al eliminar finca:", err);
+            Swal.fire(
+              'Error',
+              'Hubo un problema al eliminar la finca.',
+              'error'
+            );
+          }
+        });
+      }
+    });
+  }
+
+
 
   initMap() {
     const options = {
