@@ -11,6 +11,8 @@ import base64
 from io import BytesIO
 from PIL import Image
 from datetime import datetime
+from bson.objectid import ObjectId
+from bson.errors import InvalidId
 
 app = Flask(__name__)
 CORS(app)  # Permitir Angular
@@ -106,6 +108,28 @@ def contar_olivos():
         'image_path': result_img_path,
         'mask_path': mask_img_path
     })
+
+#Eliminar fincas
+@app.route('/fincas/<finca_id>', methods=['DELETE'])
+def eliminar_finca(finca_id):
+    try:
+        finca = fincas.find_one({"_id": ObjectId(finca_id)})
+        if not finca:
+            return jsonify({"error": "Finca no encontrada"}), 404
+
+        # Eliminar la finca de la colección fincas
+        fincas.delete_one({"_id": ObjectId(finca_id)})
+
+        # Eliminar el nombre de la finca del array "fincas" en usuarios
+        users.update_one(
+            {"fincas": finca["nombre"]},  # Busca usuarios que tengan ese nombre de finca
+            {"$pull": {"fincas": finca["nombre"]}}  # Elimina el nombre del array
+        )
+
+        return jsonify({"mensaje": "Finca eliminada correctamente"}), 200
+
+    except InvalidId:
+        return jsonify({"error": "ID inválido"}), 400
 
 
 # Obtener todos los datos del usuario por username
