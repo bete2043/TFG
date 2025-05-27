@@ -13,7 +13,6 @@ imports: [RouterModule, CommonModule, FormsModule],
   styleUrl: './riego.component.css'
 })
 export class RiegoComponent {
-    usuarioAutenticado: string | null = null;
     currentRoute: string = '';
     menuAbierto: boolean = false;
     info: any[] = [];
@@ -238,21 +237,6 @@ export class RiegoComponent {
       this.cerrarModal()
       this.ocultarHistorial()
     }
-    getInicial(): string {
-      return this.usuarioAutenticado ? this.usuarioAutenticado.charAt(0).toUpperCase() : '';
-    } 
-  
-    cerrarSesion() {
-      localStorage.removeItem('usuario');
-      this.usuarioAutenticado = null;
-      this.menuAbierto = false; 
-      this.router.navigate(['/']); 
-      this.cdRef.detectChanges();
-    }
-  
-    perfil() {
-      this.router.navigate(['/perfil']); 
-    }
   
     toggleMenu(event: Event) {
       event.stopPropagation();
@@ -266,21 +250,5 @@ export class RiegoComponent {
         this.menuAbierto = false;
         this.cdRef.detectChanges();
       }
-    }
-    
-    iniciarSesion(){
-      this.router.navigate(['/login'])
-    }
-
-    isActive(route: string): boolean {
-      return this.currentRoute.includes(route);
-    }
-
-    siguiente(): void {
-      this.indiceActual = (this.indiceActual + 1) % this.info.length; 
-    }
-  
-    anterior(): void {
-      this.indiceActual = (this.indiceActual - 1 + this.info.length) % this.info.length;  
     }
 }

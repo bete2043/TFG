@@ -34,18 +34,15 @@ plagas = mongo.db.plagas
 
 def decode_base64_image(base64_string):
     try:
-        # Quitar encabezado si existe
         if ',' in base64_string:
             base64_string = base64_string.split(',')[1]
 
-        # Padding necesario
         missing_padding = len(base64_string) % 4
         if missing_padding:
             base64_string += '=' * (4 - missing_padding)
 
-        # Decodificar imagen
         image_data = base64.b64decode(base64_string)
-        pil_image = Image.open(BytesIO(image_data)).convert("RGB")  # Asegura compatibilidad
+        pil_image = Image.open(BytesIO(image_data)).convert("RGB")  
 
         return np.asarray(pil_image)  
     except Exception as e:
@@ -55,48 +52,86 @@ def decode_base64_image(base64_string):
 
 @app.route('/contar_olivos', methods=['POST'])
 def contar_olivos():
-
     data = request.get_json()
     image_data = data['imagen']
     mask_points = data['poligono']
+    zoom = data.get('zoom', 20)  # Valor por defecto si no se envía
 
     img = decode_base64_image(image_data)
     if img is None:
         return jsonify({'error': 'Error al cargar la imagen'}), 400
 
-    # Crear máscara de región seleccionada
     mask = np.zeros(img.shape[:2], dtype=np.uint8)
     points = np.array([[int(p['x']), int(p['y'])] for p in mask_points], dtype=np.int32)
     cv2.fillPoly(mask, [points], 255)
 
-    # Aplicar la máscara al original
     masked_img = cv2.bitwise_and(img, img, mask=mask)
 
-    # Convertir a escala de grises
     gray = cv2.cvtColor(masked_img, cv2.COLOR_BGR2GRAY)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    gray = clahe.apply(gray)
 
-    # Aplicar umbral Otsu para separar fondo y olivos
-    _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-    # Aplicar la máscara de nuevo por seguridad
+    _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
     binary = cv2.bitwise_and(binary, binary, mask=mask)
 
-    # Quitar ruido con apertura (morfología)
-    kernel = np.ones((3, 3), np.uint8)
-    cleaned = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
+    kernel = np.ones((5, 5), np.uint8)
+    cleaned = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
+    cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel)
 
-    # Encontrar contornos externos
-    inverted = cv2.bitwise_not(cleaned)
-    contours, _ = cv2.findContours(inverted, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(cleaned, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Contar contornos con área válida
+   
+    zoom = data.get('zoom', 20)
+    zoom_scale = 2 ** (zoom - 20)
+
+    base_min_area = 50
+    base_max_area = 3000
+    min_area = int(base_min_area * (zoom_scale ** 2))
+    max_area = int(base_max_area * (zoom_scale ** 2))
+
+    olivo_centers = []
     olivo_count = 0
+
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if 50 < area < 3000:  # Ajustar este rango según tamaño típico de olivos
+        if area < min_area or area > max_area:
+            continue
+
+        perimeter = cv2.arcLength(cnt, True)
+        if perimeter == 0:
+            continue
+
+        circularity = 4 * np.pi * area / (perimeter ** 2)
+        if circularity < 0.4:
+            continue
+
+        x, y, w, h = cv2.boundingRect(cnt)
+        aspect_ratio = float(w) / h
+        if aspect_ratio < 0.5 or aspect_ratio > 2.0:
+            continue
+
+        M = cv2.moments(cnt)
+        if M["m00"] == 0:
+            continue
+        cx = int(M["m10"] / M["m00"])
+        cy = int(M["m01"] / M["m00"])
+
+        # Evitar doble conteo por cercanía
+        too_close = False
+        for (px, py) in olivo_centers:
+            dist = np.hypot(px - cx, py - cy)
+            if dist < 15 * zoom_scale:  # adaptamos la distancia también
+                too_close = True
+                break
+
+        if not too_close:
+            olivo_centers.append((cx, cy))
             olivo_count += 1
-            cv2.drawContours(masked_img, [cnt], -1, (0, 0, 255), 1)
-    # Guardar resultados
+            cv2.drawContours(masked_img, [cnt], -1, (0, 255, 0), 1)
+
+
+
+    # Guardar imágenes
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     result_img_path = f'mapa_detectado_{timestamp}.jpg'
     mask_img_path = f'mascara_binaria_{timestamp}.jpg'
@@ -109,6 +144,7 @@ def contar_olivos():
         'mask_path': mask_img_path
     })
 
+
 #Eliminar fincas
 @app.route('/fincas/<finca_id>', methods=['DELETE'])
 def eliminar_finca(finca_id):
@@ -117,13 +153,11 @@ def eliminar_finca(finca_id):
         if not finca:
             return jsonify({"error": "Finca no encontrada"}), 404
 
-        # Eliminar la finca de la colección fincas
         fincas.delete_one({"_id": ObjectId(finca_id)})
 
-        # Eliminar el nombre de la finca del array "fincas" en usuarios
         users.update_one(
-            {"fincas": finca["nombre"]},  # Busca usuarios que tengan ese nombre de finca
-            {"$pull": {"fincas": finca["nombre"]}}  # Elimina el nombre del array
+            {"fincas": finca["nombre"]},  
+            {"$pull": {"fincas": finca["nombre"]}}  
         )
 
         return jsonify({"mensaje": "Finca eliminada correctamente"}), 200

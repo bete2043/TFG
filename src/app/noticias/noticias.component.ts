@@ -13,7 +13,6 @@ import { HttpClient } from '@angular/common/http';
 })
 export class NoticiasComponent {
   info: any[] = [];
-  usuarioAutenticado: string | null = null;
   currentRoute: string = '';
 
   constructor(private http: HttpClient, private router: Router, private cdRef: ChangeDetectorRef) {
@@ -28,8 +27,6 @@ export class NoticiasComponent {
   }
   
   ngOnInit() {
-    this.usuarioAutenticado = localStorage.getItem('usuario');
-    console.log('Usuario recuperado de localStorage: ', this.usuarioAutenticado);  
     
     this.http.get<any[]>('http://localhost:5000/').subscribe(
       (response) => {
